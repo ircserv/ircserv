@@ -6,6 +6,8 @@
 #include "../tcp/TCPServer.hpp"
 #include "ChannelRepository.hpp"
 #include "UserRepository.hpp"
+#include "../parser/Message.hpp"
+#include "../parser/Parser.hpp"
 
 class User;
 class Channel;
@@ -29,7 +31,7 @@ class IRCServer {
     private:
       static IRCServer *instance;
       TCPServer server;
-      std::map<std::string, EventCallback> events;
+      std::map<std::string, IRCEventCallback> events;
       UserRepository &users;
       ChannelRepository &channels;
 

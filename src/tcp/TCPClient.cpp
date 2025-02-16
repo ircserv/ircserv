@@ -49,7 +49,8 @@ void TCPClient::clearReadBuffer(){
 }
 
 void TCPClient::send(const char* data){
-  writeBuffer.append(data + delimiter);
+  writeBuffer.append(data);
+  writeBuffer.append(delimiter);
 }
 
 void TCPClient::sendBufferFlush()
@@ -64,6 +65,11 @@ void TCPClient::sendBufferFlush()
 
 std::string TCPClient::receive(){
   char data[BUFFER_SIZE];
+  if (!readBuffer.empty() && findDelimiter() != std::string::npos){
+    std::string message = readBuffer.substr(0, findDelimiter());
+    readBuffer.erase(0, findDelimiter() + delimiter.length());
+    return message;
+  }
   ssize_t bytesReceived = recv(socket, data, BUFFER_SIZE, 0);
   std::cout << "Received " << bytesReceived << " bytes" << std::endl;
   std::cout << "Data: " << data << std::endl;
@@ -72,12 +78,16 @@ std::string TCPClient::receive(){
     return "";
   }
   appendToBuffer(data, bytesReceived);
+  std::cout << "[TCPClient] Received data: " << readBuffer << std::endl;
+  memset(data, 0, BUFFER_SIZE);
   std::string::size_type delimiterPos = findDelimiter();
+  std::cout << "[TCPClient] Delimiter position: " << delimiterPos << std::endl;
   if(delimiterPos == std::string::npos){
     return "";
   }
   std::string message = readBuffer.substr(0, delimiterPos);
   readBuffer.erase(0, delimiterPos + delimiter.length());
+  std:: cout << "[TCPClient] readBUff: " << readBuffer<< std::endl;
   return message;
 }
 

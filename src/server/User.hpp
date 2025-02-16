@@ -35,9 +35,8 @@ class User {
     void part(Channel & channel);
     void send(std::string message);
     void sendBufferFlush();
-    std::string receive();
-    void broadcast(std::string message);
-
+    std::vector<std::string> receive();
+    
     void setNickname(std::string nickname);
     void setUsername(std::string username);
     void setRealname(std::string realname);

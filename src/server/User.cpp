@@ -75,9 +75,17 @@ void User::sendBufferFlush()
   client.sendBufferFlush();
 }
 
-std::string User::receive()
+std::vector<std::string> User::receive()
 {
-  return client.receive();
+  std::vector<std::string> messages;
+  while(true){
+    std::string message = client.receive();
+    if(message.empty()){
+      break;
+    }
+    messages.push_back(message);
+  }
+  return messages;
 }
 
 void User::setNickname(std::string nickname)
