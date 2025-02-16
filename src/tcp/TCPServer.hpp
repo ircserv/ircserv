@@ -11,7 +11,7 @@
 #include "TCPClient.hpp"
 
 typedef int fd;
-typedef void (*EventCallback)(fd fd, void* userData);
+typedef void (*EventCallback)(fd fd);
 
 class TCPServer {
     private:
@@ -26,11 +26,6 @@ class TCPServer {
       EventCallback writeCallback;
       EventCallback readCallback;
       EventCallback errorCallback;
-      void* acceptUserData;
-      void* disconnectUserData;
-      void* readUserData;
-      void* writeUserData;
-      void* errorUserData;
 
       TCPServer(const TCPServer&);
       TCPServer& operator=(const TCPServer&);
@@ -47,11 +42,11 @@ class TCPServer {
       ~TCPServer(); 
 
       void start(int port);
-      void setAcceptCallback(EventCallback callback, void* userData);
-      void setDisconnectCallback(EventCallback callback, void* userData);
-      void setReadCallback(EventCallback callback, void* userData);
-      void setWriteCallback(EventCallback callback, void* userData);
-      void setErrorCallback(EventCallback callback, void* userData);
+      void setAcceptCallback(EventCallback callback);
+      void setDisconnectCallback(EventCallback callback);
+      void setReadCallback(EventCallback callback);
+      void setWriteCallback(EventCallback callback);
+      void setErrorCallback(EventCallback callback);
       void eventLoop();
       void disconnectClient(fd clientSocket);
       void enableWriteEvent(fd clientSocket);

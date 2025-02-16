@@ -1,7 +1,6 @@
 #include "TCPServer.hpp"
 #include <iostream>
 
-
 TCPServer::TCPServer() : serverSocket(-1), kq(-1), maxEvents(32), running(false) {
     clients = std::map<fd, TCPClient *>();
     eventlists = new struct kevent[maxEvents];
@@ -32,7 +31,7 @@ void TCPServer::start(int port) {
     serverAddr.sin_addr.s_addr = INADDR_ANY;
     serverAddr.sin_port = htons(port);
 
-    if(bind(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1){
+    if(bind(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1) {
         throw std::runtime_error("Failed to bind socket");
     }
     initializeKqueue();
@@ -53,15 +52,15 @@ void TCPServer::eventLoop() {
   for (int i = 0; i < newEvents; i++) {
     int fd = eventlists[i].ident;
     int filter = eventlists[i].filter;
-      int flags = eventlists[i].flags;
+    int flags = eventlists[i].flags;
     if (fd == serverSocket && filter == EVFILT_READ) {
       int newClient = connectClient();
-      acceptCallback(newClient, acceptUserData);
-      return;
+      acceptCallback(newClient);
+      return ;
     }
     if (flags & EV_EOF) { // ^D
       disconnectClient(fd);
-      disconnectCallback(fd, disconnectUserData);
+      disconnectCallback(fd);
       return;
     }
     handleEventFilter(filter, fd);
@@ -70,7 +69,7 @@ void TCPServer::eventLoop() {
 
 void TCPServer::initializeKqueue(){
     kq = kqueue();
-    if(kq == -1){
+    if (kq == -1) {
         throw std::runtime_error("Failed to create kqueue");
     }
     setNonBlocking(serverSocket);
@@ -104,10 +103,10 @@ void TCPServer::unregisterEvent(fd fd, int filter){
 void TCPServer::handleEventFilter(int filter, int fd) {
   switch (filter) {
     case EVFILT_READ:
-      if (readCallback) readCallback(fd, readUserData);
+      if (readCallback) readCallback(fd);
       break;
     case EVFILT_WRITE:
-      if (writeCallback) writeCallback(fd, writeUserData);
+      if (writeCallback) writeCallback(fd);
       break;
     default:
       break;
@@ -135,31 +134,26 @@ void TCPServer::disconnectClient(fd clientSocket){
 
 void TCPServer::enableWriteEvent(fd clientSocket)
 {
-  registerEvent(clientSocket, EVFILT_WRITE, EV_ADD | EV_ONESHOT); 
+  registerEvent(clientSocket, EVFILT_WRITE, EV_ADD | EV_ONESHOT);
 }
 
 
-void TCPServer::setAcceptCallback(EventCallback callback, void* userData){
-  acceptCallback = callback;
-  acceptUserData = userData;
+void TCPServer::setAcceptCallback(EventCallback callback){
+  acceptCallback = callback; 
 }
 
-void TCPServer::setDisconnectCallback(EventCallback callback, void* userData){
-  disconnectCallback = callback;
-  disconnectUserData = userData;
+void TCPServer::setDisconnectCallback(EventCallback callback){
+  disconnectCallback = callback; 
 }
 
-void TCPServer::setReadCallback(EventCallback callback, void* userData){
-  readCallback = callback;
-  readUserData = userData;
+void TCPServer::setReadCallback(EventCallback callback){
+  readCallback = callback; 
 }
 
-void TCPServer::setWriteCallback(EventCallback callback, void* userData){
-  writeCallback = callback;
-  writeUserData = userData;
+void TCPServer::setWriteCallback(EventCallback callback){
+  writeCallback = callback; 
 }
 
-void TCPServer::setErrorCallback(EventCallback callback, void* userData){
-  errorCallback = callback;
-  errorUserData = userData;
+void TCPServer::setErrorCallback(EventCallback callback){
+  errorCallback = callback; 
 }

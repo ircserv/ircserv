@@ -12,14 +12,14 @@ class Channel;
 class UserRepository;
 class ChannelRepository;
 
-
+typedef void (*IRCEventCallback)(fd clientSocket, void* message);
 class IRCServer {
     public:
       static IRCServer &getInstance();
       static void destroy();
 
       void start(int port);
-      void on(const std::string event, EventCallback callback);
+      void on(const std::string event, IRCEventCallback callback);
       void broadcast(const char* data);
       void send(fd clientSocket, const char* data);
       void disconnect(fd clientSocket);
@@ -40,11 +40,11 @@ class IRCServer {
 
     
     
-    static void acceptCallback(fd eventSocket, void* server);
-    static void disconnectCallback(fd eventSocket, void* server);
-    static void readCallback(fd eventSocket, void* server);
-    static void writeCallback(fd eventSocket, void* server);
-    static void errorCallback(fd eventSocket, void* server);
+    static void acceptCallback(fd eventSocket);
+    static void disconnectCallback(fd eventSocket);
+    static void readCallback(fd eventSocket);
+    static void writeCallback(fd eventSocket);
+    static void errorCallback(fd eventSocket);
 
 };
 

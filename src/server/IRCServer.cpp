@@ -32,15 +32,15 @@ void IRCServer::destroy()
 
 void IRCServer::start(int port)
 {
-  server.setAcceptCallback(acceptCallback, this);
-  server.setDisconnectCallback(disconnectCallback, this);
-  server.setReadCallback(readCallback, this);
-  server.setWriteCallback(writeCallback, this);
-  server.setErrorCallback(errorCallback, this);
+  server.setAcceptCallback(acceptCallback);
+  server.setDisconnectCallback(disconnectCallback);
+  server.setReadCallback(readCallback);
+  server.setWriteCallback(writeCallback);
+  server.setErrorCallback(errorCallback);
   server.start(port);
 }
 
-void IRCServer::on(const std::string event, EventCallback callback)
+void IRCServer::on(const std::string event, IRCEventCallback callback)
 {
   this->events[event] = callback;
 }
@@ -81,13 +81,13 @@ void IRCServer::enableWriteEvent(fd clientSocket)
   server.enableWriteEvent(clientSocket);
 }
 
-void IRCServer::acceptCallback(fd eventSocket, void * server)
+void IRCServer::acceptCallback(fd eventSocket)
 {
   IRCServer* ircServer = static_cast<IRCServer*>(server);
   ircServer->users.addUser(User(eventSocket));
 }
 
-void IRCServer::disconnectCallback(fd eventSocket, void * server)
+void IRCServer::disconnectCallback(fd eventSocket)
 {
   IRCServer* irc = static_cast<IRCServer*>(server);
   /// TODO : disconnect 사이클 정하기
@@ -96,9 +96,9 @@ void IRCServer::disconnectCallback(fd eventSocket, void * server)
 }
 
 
-void IRCServer::readCallback(fd eventSocket, void * server)
+void IRCServer::readCallback(fd eventSocket)
 {
-    IRCServer *irc = static_cast<IRCServer*>(server);
+    IRCServer &irc = IRCServer::getInstance();
     UserRepository &userRepo = UserRepository::getInstance();
     User *user = userRepo.getUser(eventSocket);
     std::string message = user->receive();
@@ -109,13 +109,13 @@ void IRCServer::readCallback(fd eventSocket, void * server)
     std:: cout << "Server Side received message : " << message << std::endl;
     std::string command = message.substr(0, message.find(" "));
     std::string params = message.substr(message.find(" ") + 1);
-    if(irc->events.find(command) != irc->events.end())
+    if(irc.events.find(command) != irc.events.end())
     {
-      irc->events[command](eventSocket, (void*)params.c_str());
+      irc.events[command](eventSocket, (void*)params.c_str());
     }
     else
     {
-      irc->broadcast(message.c_str());
+      irc.broadcast(message.c_str());
     }
     
     // std::cout << "Received message: " << message << std::endl;
@@ -123,7 +123,7 @@ void IRCServer::readCallback(fd eventSocket, void * server)
     // irc->broadcast(message.c_str());
 }
 
-void IRCServer::writeCallback(fd eventSocket, void * server)
+void IRCServer::writeCallback(fd eventSocket)
 {
   // IRCServer *irc = static_cast<IRCServer*>(server);
   (void)server;
@@ -132,7 +132,7 @@ void IRCServer::writeCallback(fd eventSocket, void * server)
   user->sendBufferFlush();
 }
 
-void IRCServer::errorCallback(fd eventSocket, void * server)
+void IRCServer::errorCallback(fd eventSocket)
 {
   IRCServer *irc = static_cast<IRCServer*>(server);
   std::cout << "Error on socket " << eventSocket << std::endl;
