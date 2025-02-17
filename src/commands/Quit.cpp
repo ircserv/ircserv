@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Quit.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minhulee <minhulee@student.42seoul.kr>     +#+  +:+       +#+        */
+/*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 02:10:09 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/17 02:58:06 by minhulee         ###   ########seoul.kr  */
+/*   Updated: 2025/02/17 07:31:53 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

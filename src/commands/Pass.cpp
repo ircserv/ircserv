@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Pass.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minhulee <minhulee@student.42seoul.kr>     +#+  +:+       +#+        */
+/*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/16 23:32:36 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/17 03:13:59 by minhulee         ###   ########seoul.kr  */
+/*   Updated: 2025/02/17 11:50:56 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,3 +24,32 @@
 // PASS의 경우 461, 462, 464의 format을 충족하여 반환하려고 할 경우
 // 소켓을 통해 client를 추적하는 과정이 필요함(client name을 구하는 과정)
 // 그러나 일반적으로, PASS에 응답이 있는 경우 실패로 판단하기 때문에 적절한 메세지를 반환해도 된다.
+
+#include "IRCCommand.hpp"
+#include <iostream>
+
+namespace IRCCommand {
+  void pass(int clientSocket, void* message){
+    std::cout << "[COMMAND] PASS" << std::endl;
+    Message *msg = static_cast<Message*>(message);
+    UserRepository &users = UserRepository::getInstance();
+    User *user = users.getUser(clientSocket);
+    std::string password = msg->getParams()[0];
+
+    if(user->isRegistered()){
+      std::cout << "Already registered" << std::endl;
+      user->send("462 " + user->getNickname() + " :You may not reregister");
+      // ERR_ALREDYREGISTERED
+      return;
+    }
+    IRCServer &server = IRCServer::getInstance();
+    // std::cout << "[PASS] param: " << msg->getParams() <<  "[PARAM]" << std::endl;
+    if(!server.authenticate(password)){
+      // ERR_PASSWDMISMATCH
+      user->send("464 " + user->getNickname() + " :Password incorrect");
+      return ; 
+    }
+    user->setRegistered(true);
+    return ;
+  }
+}

@@ -1,22 +1,41 @@
 #include "User.hpp"
 
 User::User()
-: client(), nickname(""), username(""), realname(""), channels()
+: client(), 
+  nickname(""),
+  username(""), 
+  hostname(""),
+  servername(""),
+  realname(""), 
+  registered(false),
+  channels()
 {
 }
 
 User::User(int socket) 
-  : client(socket),
-    nickname(""),
-    username(""),
-    realname(""),
-    channels()
+  :   
+      client(socket),
+      nickname(""),
+      username(""), 
+      hostname(""),
+      servername(""),
+      realname(""), 
+      registered(false),
+      channels()
   {}
 
 User::~User(){}
 
 User::User(const User & other)
-: client(other.client), nickname(other.nickname), username(other.username), realname(other.realname), channels(other.channels){}
+: client(other.client), 
+  nickname(other.nickname), 
+  username(other.username), 
+  hostname(other.hostname),
+  servername(other.servername),
+  realname(other.realname), 
+  registered(other.registered),
+  channels(other.channels)
+{}
 
 User & User::operator=(const User & other)
 {
@@ -25,7 +44,10 @@ User & User::operator=(const User & other)
     this->client = other.client;
     this->nickname = other.nickname;
     this->username = other.username;
+    this->hostname = other.hostname;
+    this->servername = other.servername;
     this->realname = other.realname;
+    this->registered = other.registered;
     this->channels = other.channels;
   }
   return *this;
@@ -98,6 +120,13 @@ void User::setUsername(std::string username)
   this->username = username;
 }
 
+
+void User::setHostname(const std::string hostname){
+  this->hostname = hostname;
+}
+void User::setServername(const std::string servername){
+  this->servername = servername;
+}
 void User::setRealname(std::string realname)
 {
   this->realname = realname;
@@ -119,4 +148,12 @@ bool User::isJoined(Channel & channel)
     return true;
   }
   return false;
+}
+
+void User::setRegistered(bool registered){
+  this->registered = registered;
+}
+
+bool User::isRegistered(){
+  return registered;
 }

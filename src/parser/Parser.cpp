@@ -1,4 +1,5 @@
 #include "Parser.hpp"
+#include <iostream>
 // Parser 클래스 구현
 Parser::Parser() {}
 
@@ -59,13 +60,21 @@ void Parser::parseCommand(const std::string& rawMessage, Message& msg) const {
 
 void Parser::parseParameters(const std::string& rawMessage, Message& msg) const {
     size_t start = rawMessage.find(msg.getCommand()) + msg.getCommand().length();
+    std::vector<std::string> params;
     
     if (start >= rawMessage.length()) {
         return;
     }
-    
-    start = rawMessage.find_first_not_of(' ', start);
-    if (start != std::string::npos) {
-        msg.setParams(rawMessage.substr(start));
+    while(true){
+        start = rawMessage.find_first_not_of(' ', start);
+        size_t end = rawMessage.find(' ', start);
+        if (end != std::string::npos) {
+            params.push_back(rawMessage.substr(start, end - start));
+        } else {
+            params.push_back(rawMessage.substr(start));
+            break;
+        }
+        start = end;
     }
+    msg.setParams(params);
 }

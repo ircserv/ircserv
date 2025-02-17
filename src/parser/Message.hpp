@@ -2,7 +2,7 @@
 #define IRC_MESSAGE_HPP
 
 #include <string>
-
+#include <vector>
 class Message {
 public:
     // 기본 생성자
@@ -23,21 +23,21 @@ public:
     // getter/setter
     const std::string& getPrefix() const;
     const std::string& getCommand() const;
-    const std::string& getParams() const;
+    const std::vector<std::string>& getParams() const;
     const std::string& getRawMessage() const;
 
     void setPrefix(const std::string& prefix);
     void setCommand(const std::string& command);
     /// @brief 
     /// @param params 
-    void setParams(const std::string& params);
+    void setParams(const std::vector<std::string>& params);
     void setRawMessage(const std::string& rawMessage);
 
 private:
     std::string rawMessage;
     std::string prefix;
     std::string command;
-    std::string params;
+    std::vector<std::string> params;
 };
 
 #endif // IRC_MESSAGE_HPP

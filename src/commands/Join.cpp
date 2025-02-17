@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Join.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minhulee <minhulee@student.42seoul.kr>     +#+  +:+       +#+        */
+/*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 02:58:39 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/17 03:26:38 by minhulee         ###   ########seoul.kr  */
+/*   Updated: 2025/02/17 11:53:52 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,3 +58,19 @@
 // 353 "<client> <symbol> <channel> :[prefix]<nick>{ [prefix]<nick>}"
 // RPL_ENDOFNAMES (366) - 사용자 목록 끝남 알림
 // 366 "<client> <channel> :End of /NAMES list"
+
+#include "IRCCommand.hpp"
+
+namespace IRCCommand {
+  void join(fd clientSocket, void* message){
+    
+    // IRCServer* ircServer = static_cast<IRCServer*>(server);
+    (void)message;
+    std::cout << "[EVENT] JOIN" << std::endl;
+    IRCServer &ircServer = IRCServer::getInstance();
+    UserRepository &users = UserRepository::getInstance();
+    User *user = users.getUser(clientSocket);
+    user->send("461" + user->getNickname() + " :Password required");
+    ircServer.enableWriteEvent(clientSocket);  
+  }
+}

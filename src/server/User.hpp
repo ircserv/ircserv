@@ -16,8 +16,12 @@ class User {
     TCPClient client;
     std::string nickname;
     std::string username;
+    std::string hostname;
+    std::string servername;
     std::string realname;
+    bool registered;
     std::map<std::string, Channel *> channels;
+    
   
   public:
     User();
@@ -40,9 +44,14 @@ class User {
     void setNickname(std::string nickname);
     void setUsername(std::string username);
     void setRealname(std::string realname);
+    void setHostname(const std::string hostname);
+    void setServername(const std::string servername);
 
     std::vector<Channel> getChannels();
     bool isJoined(Channel & channel);
+
+    void setRegistered(bool registered);
+    bool isRegistered();
 };  
 
 

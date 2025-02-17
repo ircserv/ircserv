@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minhulee <minhulee@student.42seoul.kr>     +#+  +:+       +#+        */
+/*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/16 23:52:43 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/17 03:12:17 by minhulee         ###   ########seoul.kr  */
+/*   Updated: 2025/02/17 11:55:06 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,3 +30,27 @@
 // "<client> <command> :Not enough parameters"
 // ERR_ALREADYREGISTERED (462) - 이미 등록한 이후, 해당 명령어 재시도
 // "<client> :You may not reregister"
+
+#include "IRCCommand.hpp"
+
+namespace IRCCommand {
+  void user(fd clientSocket, void* message){
+    Message *msg = static_cast<Message*>(message);
+    std::vector<std::string> params = msg->getParams();
+    IRCServer &ircServer = IRCServer::getInstance();
+    UserRepository &users = UserRepository::getInstance();
+    User *user = users.getUser(clientSocket);
+
+    if(!user->isRegistered()){
+      user->send("451" + user->getNickname() + " :You have not registered");
+    }
+
+    user->setUsername(params[0]);
+    user->setHostname(params[1]);
+    user->setServername(params[2]);
+    user->setRealname(params[3]);
+
+    
+    ircServer.enableWriteEvent(clientSocket);  
+  }
+}

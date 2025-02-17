@@ -1,26 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   Cap.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/17 07:32:10 by yechakim          #+#    #+#             */
-/*   Updated: 2025/02/17 11:55:08 by yechakim         ###   ########.fr       */
+/*   Created: 2025/02/17 07:27:35 by yechakim          #+#    #+#             */
+/*   Updated: 2025/02/17 11:54:44 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "IRCServer.hpp"
-#include "commands/IRCCommand.hpp"
+#include "IRCCommand.hpp"
+#include <iostream>
 
-int main(){
-  IRCServer &server = IRCServer::getInstance();
-  server.on("CAP", IRCCommand::cap);
-  server.on("JOIN", IRCCommand::join);
-  server.on("PASS", IRCCommand::pass);
-  server.on("NICK", IRCCommand::nick);
-  server.on("USER", IRCCommand::user);
-  server.start(6667);
-  server.destroy();
-  return 0;
+namespace IRCCommand{
+  void cap(fd clientSocket, void* message){
+    (void)message;
+    IRCServer &ircServer = IRCServer::getInstance();
+    UserRepository &users = UserRepository::getInstance();
+    users.getUser(clientSocket)->send("CAP * LS:");
+    ircServer.enableWriteEvent(clientSocket);
+  }
 }

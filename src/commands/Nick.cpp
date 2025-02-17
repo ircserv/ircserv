@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Nick.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minhulee <minhulee@student.42seoul.kr>     +#+  +:+       +#+        */
+/*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 14:50:04 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/17 03:14:07 by minhulee         ###   ########seoul.kr  */
+/*   Updated: 2025/02/17 11:52:16 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,3 +31,22 @@
 // 433 "<client> <nick> :Nickname is already in use"
 // ERR_NICKCOLLISION (436) - 이미 사용중 (채널에서) -> 우리랑 상관 없음, 네트워크 병합 시 발생
 
+#include "IRCCommand.hpp"
+
+namespace IRCCommand{
+  void nick(fd clientSocket, void* message){
+    IRCServer &ircServer = IRCServer::getInstance();
+    UserRepository &users = UserRepository::getInstance();
+    User *user = users.getUser(clientSocket);
+    Message *msg = static_cast<Message*>(message);
+    
+    if(!user->isRegistered()){
+      user->send("451" + user->getNickname() + " :You have not registered");
+      ircServer.enableWriteEvent(clientSocket);
+      return;
+    }
+    
+    std::string nickname = msg->getParams()[0];
+    user->setNickname(nickname);
+  }
+}
