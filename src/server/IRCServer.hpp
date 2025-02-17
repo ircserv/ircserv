@@ -9,6 +9,12 @@
 #include "../parser/Message.hpp"
 #include "../parser/Parser.hpp"
 
+#define CMD_JOIN "JOIN"
+#define CMD_PASS "PASS"
+#define CMD_NICK "NICK"
+#define CMD_USER "USER"
+#define CMD_CAP "CAP"
+
 class User;
 class Channel;
 class UserRepository;
