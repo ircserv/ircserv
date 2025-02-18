@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/16 23:32:36 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/17 11:50:56 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/18 18:49:03 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,23 +30,29 @@
 
 namespace IRCCommand {
   void pass(int clientSocket, void* message){
-    std::cout << "[COMMAND] PASS" << std::endl;
     Message *msg = static_cast<Message*>(message);
+    IRCServer &server = IRCServer::getInstance();
     UserRepository &users = UserRepository::getInstance();
     User *user = users.getUser(clientSocket);
-    std::string password = msg->getParams()[0];
+    std::vector<std::string> params = msg->getParams();
 
-    if(user->isRegistered()){
-      std::cout << "Already registered" << std::endl;
-      user->send("462 " + user->getNickname() + " :You may not reregister");
-      // ERR_ALREDYREGISTERED
+    if(params.size() == 0){
+      // ERRO_NEEDMOREPARAMS
+      server.enableWriteEvent(clientSocket);
       return;
     }
-    IRCServer &server = IRCServer::getInstance();
-    // std::cout << "[PASS] param: " << msg->getParams() <<  "[PARAM]" << std::endl;
+
+    if (user->isRegistered()) {
+      // ERR_ALREDYREGISTERED
+      user->send("462 " + user->getNickname() + " :You may not reregister");
+      server.enableWriteEvent(clientSocket);
+      return;
+    }
+    std::string password = params[0];
     if(!server.authenticate(password)){
       // ERR_PASSWDMISMATCH
       user->send("464 " + user->getNickname() + " :Password incorrect");
+      server.enableWriteEvent(clientSocket);
       return ; 
     }
     user->setRegistered(true);
