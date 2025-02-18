@@ -3,8 +3,8 @@
 
 #include <string>
 #include <map>
-#include "Channel.hpp"
 #include <vector>
+#include "Channel.hpp"
 #include <iostream>
 #include "../tcp/TCPClient.hpp"
 #include "./IRCServer.hpp"

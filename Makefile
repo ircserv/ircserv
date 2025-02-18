@@ -1,7 +1,15 @@
 NAME = ircserv
-CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+UNAME := $(shell uname)
+
+# OS 구분 및 설정
+ifeq ($(UNAME), Linux)
+	CXXFLAGS += -I/usr/include/kqueue
+	LDFLAGS = -L/usr/lib/x86_64-linux-gnu -lkqueue
+endif
+
 DFLAGS = -g3 -fsanitize=address
+CXX = c++
 
 SRCS_DIR = src
 OBJS_DIR = objs
@@ -19,7 +27,7 @@ INCLUDES = -I$(SRCS_DIR) \
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
+	$(CXX) $(CXXFLAGS) $(OBJS) $(LDFLAGS) -o $(NAME)
 
 debug: CXXFLAGS += $(DFLAGS)
 debug: re
