@@ -12,10 +12,10 @@ class ChannelRepository {
       static ChannelRepository &getInstance();
       static void destroy();
 
-      void addChannel(Channel & channel);
+      void addChannel(Channel channel);
       void removeChannel(Channel & channel);
-      Channel &getChannel(std::string name);
-      bool hasChannel(std::string name);
+      Channel *getChannel(std::string const &name);
+      bool hasChannel(std::string const &name);
     private:
       static ChannelRepository *instance;
       std::map<std::string, Channel> channels;

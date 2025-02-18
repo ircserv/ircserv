@@ -21,7 +21,7 @@ void ChannelRepository::destroy()
   }
 }
 
-void ChannelRepository::addChannel(Channel & channel)
+void ChannelRepository::addChannel(Channel channel)
 {
   if (hasChannel(channel.getName())) {
       throw std::invalid_argument("Channel already exists");
@@ -42,15 +42,15 @@ ChannelRepository::~ChannelRepository()
   
 }
 
-Channel & ChannelRepository::getChannel(channelName name)
+Channel *ChannelRepository::getChannel(std::string const &name)
 {
   if(!hasChannel(name)) {
-    throw std::invalid_argument("Channel does not exist");
+    return NULL;
   }
-  return channels[name];
+  return &channels[name];
 }
 
-bool ChannelRepository::hasChannel(channelName name)
+bool ChannelRepository::hasChannel(std::string const &name)
 {
   if(channels.find(name) != channels.end()) {
     return true;
