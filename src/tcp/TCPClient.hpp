@@ -2,6 +2,7 @@
 # define TCP_CLIENT_HPP
 
 #include <string>
+#include <cstring>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
