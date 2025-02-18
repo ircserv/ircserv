@@ -67,6 +67,9 @@ void Parser::parseParameters(const std::string& rawMessage, Message& msg) const 
     }
     while(true){
         start = rawMessage.find_first_not_of(' ', start);
+        if (start == std::string::npos){
+            break;
+        }
         size_t end = rawMessage.find(' ', start);
         if (end != std::string::npos) {
             params.push_back(rawMessage.substr(start, end - start));

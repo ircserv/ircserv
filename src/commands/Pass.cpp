@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/16 23:32:36 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/18 18:49:03 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/18 19:10:31 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,13 +37,14 @@ namespace IRCCommand {
     std::vector<std::string> params = msg->getParams();
 
     if(params.size() == 0){
-      // ERRO_NEEDMOREPARAMS
+      // TODO: ERRO_NEEDMOREPARAMS
+      user->send("461 " + user->getNickname() + " " + msg->getCommand() + " :Not enough parameters");
       server.enableWriteEvent(clientSocket);
       return;
     }
 
     if (user->isRegistered()) {
-      // ERR_ALREDYREGISTERED
+      // TODO: ERR_ALREDYREGISTERED
       user->send("462 " + user->getNickname() + " :You may not reregister");
       server.enableWriteEvent(clientSocket);
       return;
