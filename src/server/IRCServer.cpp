@@ -4,7 +4,7 @@
 IRCServer *IRCServer::instance = NULL;
 
 IRCServer::IRCServer()
-: server(), events(), users(UserRepository::getInstance()), channels(ChannelRepository::getInstance()), password("gotohome")
+: server(), events(), password("gotohome")
 {
   time_t rawtime;
   time(&rawtime);
@@ -72,19 +72,22 @@ void IRCServer::broadcast(const char * data)
 
 void IRCServer::send(fd clientSocket, const char * data)
 {
+  UserRepository &users = UserRepository::getInstance();
   users.getUser(clientSocket)->send(data);
   server.enableWriteEvent(clientSocket);
 }
 
 void IRCServer::disconnect(fd clientSocket)
 {
+  UserRepository &users = UserRepository::getInstance();
   this->server.disconnectClient(clientSocket);
   users.removeUser(clientSocket);
 }
 
 void IRCServer::disconnectAll()
 {
-  std::map<fd, User> users = this->users.getUsers();
+  UserRepository &userRepo = UserRepository::getInstance();
+  std::map<int, User> users = userRepo.getUsers();
   for(std::map<fd, User>::iterator it = users.begin(); it != users.end(); ++it)
   {
     this->disconnect(it->first);
