@@ -27,6 +27,8 @@ class IRCServer {
       void disconnect(fd clientSocket);
       void disconnectAll();
       void enableWriteEvent(fd clientSocket);
+
+      bool authenticate(std::string password);
       
     private:
       static IRCServer *instance;
@@ -34,6 +36,7 @@ class IRCServer {
       std::map<std::string, IRCEventCallback> events;
       UserRepository &users;
       ChannelRepository &channels;
+      std::string password;
 
       IRCServer();
       ~IRCServer();

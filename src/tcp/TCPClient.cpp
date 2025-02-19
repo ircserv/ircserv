@@ -60,6 +60,7 @@ void TCPClient::sendBufferFlush()
     connected = false;
     // TODO:  NEED To check
   }
+  std::cout << "[FLUSH]" << writeBuffer << "[FLUSH END]"<<std::endl;
   writeBuffer.clear();
 }
 
@@ -78,16 +79,13 @@ std::string TCPClient::receive(){
     return "";
   }
   appendToBuffer(data, bytesReceived);
-  std::cout << "[TCPClient] Received data: " << readBuffer << std::endl;
   memset(data, 0, BUFFER_SIZE);
   std::string::size_type delimiterPos = findDelimiter();
-  std::cout << "[TCPClient] Delimiter position: " << delimiterPos << std::endl;
   if(delimiterPos == std::string::npos){
     return "";
   }
   std::string message = readBuffer.substr(0, delimiterPos);
   readBuffer.erase(0, delimiterPos + delimiter.length());
-  std:: cout << "[TCPClient] readBUff: " << readBuffer<< std::endl;
   return message;
 }
 

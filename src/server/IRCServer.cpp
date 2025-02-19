@@ -4,7 +4,7 @@
 IRCServer *IRCServer::instance = NULL;
 
 IRCServer::IRCServer()
-: server(), events(), users(UserRepository::getInstance()), channels(ChannelRepository::getInstance())
+: server(), events(), users(UserRepository::getInstance()), channels(ChannelRepository::getInstance()), password("gotohome")
 {
 }
 
@@ -76,9 +76,12 @@ void IRCServer::disconnectAll()
   }
 }
 
-void IRCServer::enableWriteEvent(fd clientSocket)
-{
+void IRCServer::enableWriteEvent(fd clientSocket) {
   server.enableWriteEvent(clientSocket);
+}
+
+bool IRCServer::authenticate(std::string challenge){
+  return password == challenge;
 }
 
 void IRCServer::acceptCallback(fd eventSocket)
@@ -106,7 +109,7 @@ void IRCServer::readCallback(fd eventSocket)
       std::string msg = *it;
       Message currMsg = parser.parseMessage(*it);  
       if(irc.events.find(currMsg.getCommand()) != irc.events.end()) {
-        irc.events[currMsg.getCommand()](eventSocket, (void*)&msg);
+        irc.events[currMsg.getCommand()](eventSocket, &currMsg);
       } else {
         std::cout << "[IRC] NO EVENT HANDLER FOR " << currMsg.getCommand() << std::endl;
       }

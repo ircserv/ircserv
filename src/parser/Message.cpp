@@ -2,10 +2,10 @@
 
 // Message 클래스 구현
 Message::Message() 
-    : rawMessage(""), prefix(""), command(""), params("") {}
+    : rawMessage(""), prefix(""), command(""), params() {}
 
 Message::Message(const std::string& raw)
-    : rawMessage(raw), prefix(""), command(""), params("") {}
+    : rawMessage(raw), prefix(""), command(""), params() {}
 
 Message::~Message() {}
 
@@ -27,7 +27,7 @@ Message& Message::operator=(const Message& other) {
 
 const std::string& Message::getPrefix() const { return prefix; }
 const std::string& Message::getCommand() const { return command; }
-const std::string& Message::getParams() const { return params; }
+const std::vector<std::string> &Message::getParams() const { return params; }
 const std::string& Message::getRawMessage() const { return rawMessage; }
 
 void Message::setPrefix(const std::string & prefix)
@@ -40,7 +40,7 @@ void Message::setCommand(const std::string & command)
     this->command = command;
 }
 
-void Message::setParams(const std::string & params)
+void Message::setParams(const std::vector<std::string> &params)
 {
     this->params = params;
 }
