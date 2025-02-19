@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 14:50:04 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/17 11:52:16 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/19 20:08:05 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,15 @@ namespace IRCCommand{
       return;
     }
     
-    std::string nickname = msg->getParams()[0];
     user->setNickname(nickname);
+
+    if(!user->getNickname().empty() && !user->getUsername().empty()){
+      user->send(RPL_WELCOME(user->getNickname()));
+      user->send(RPL_YOURHOST(user->getNickname()));
+      user->send(RPL_CREATED(user->getNickname(), ircServer.getCreatedTime()));
+      user->send(RPL_MYINFO(user->getNickname()));
+      user->send(RPL_ISUPPORT(user->getNickname())); 
+      ircServer.enableWriteEvent(clientSocket);  
+    }
   }
 }
