@@ -16,7 +16,7 @@
 
 #define	RPL_INVITING(client, nick, channel)							("341 " + client + " " + nick + " " + channel)
 
-#define	RPL_NAMREPLY(client, channel, users)						("353 " + client + " " + channel + " = " + users)
+#define	RPL_NAMREPLY(client, symbol, channel, users)		("353 " + client + " " + symbol + " " + channel + " " + users)
 #define	RPL_ENDOFNAMES(client, channel)									("366 " + client + " " + channel + " :End of /NAMES list")
 
 #define	ERR_NOSUCHNICK(client, nick)										("401 " + client + " " + nick + " :No such nick/channel")
