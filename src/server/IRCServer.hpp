@@ -20,6 +20,7 @@ class IRCServer {
       static IRCServer &getInstance();
       static void destroy();
 
+      std::string const &getCreatedTime() const;
       void start(int port);
       void on(const std::string event, IRCEventCallback callback);
       void broadcast(const char* data);
@@ -37,6 +38,7 @@ class IRCServer {
       UserRepository &users;
       ChannelRepository &channels;
       std::string password;
+      std::string createdTime;
 
       IRCServer();
       ~IRCServer();

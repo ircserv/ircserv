@@ -60,7 +60,7 @@ void TCPClient::sendBufferFlush()
     connected = false;
     // TODO:  NEED To check
   }
-  std::cout << "[FLUSH]" << writeBuffer << "[FLUSH END]"<<std::endl;
+  std::cout << "[FLUSH]\n" << writeBuffer << "\n[FLUSH END]"<<std::endl;
   writeBuffer.clear();
 }
 

@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/16 23:52:43 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/17 11:55:06 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/19 19:44:39 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@
 // "<client> :You may not reregister"
 
 #include "IRCCommand.hpp"
-
 namespace IRCCommand {
   void user(fd clientSocket, void* message){
     Message *msg = static_cast<Message*>(message);
@@ -40,17 +39,45 @@ namespace IRCCommand {
     IRCServer &ircServer = IRCServer::getInstance();
     UserRepository &users = UserRepository::getInstance();
     User *user = users.getUser(clientSocket);
+    
+    if (!user->isRegistered()) {
+      user->send("464 " + user->getNickname() + " :You hav not registered");
+      ircServer.enableWriteEvent(clientSocket);
+      return ;
+    }
 
-    if(!user->isRegistered()){
-      user->send("451" + user->getNickname() + " :You have not registered");
+    if (!user->getRealname().empty()){
+      user->send(ERR_ALREADYREGISTERED(user->getNickname()));
+      ircServer.enableWriteEvent(clientSocket);
+      return ;
+    }
+
+    if(params.size() < 4){
+      user->send(ERR_NEEDMOREPARAMS(user->getNickname(), msg->getCommand()));
+      ircServer.enableWriteEvent(clientSocket);
+      return ;
+    }
+    std::string realname;
+
+    for(size_t i = 3; i < params.size(); i++){
+      realname += params[i];
+      if(i != params.size() - 1){
+        realname += " ";
+      }
     }
 
     user->setUsername(params[0]);
     user->setHostname(params[1]);
     user->setServername(params[2]);
-    user->setRealname(params[3]);
+    user->setRealname(realname);
 
-    
-    ircServer.enableWriteEvent(clientSocket);  
+    if(!user->getNickname().empty() && !user->getUsername().empty()){
+      user->send(RPL_WELCOME(user->getNickname()));
+      user->send(RPL_YOURHOST(user->getNickname()));
+      user->send(RPL_CREATED(user->getNickname(), ircServer.getCreatedTime()));
+      user->send(RPL_MYINFO(user->getNickname()));
+      user->send(RPL_ISUPPORT(user->getNickname())); 
+      ircServer.enableWriteEvent(clientSocket);  
+    }
   }
 }
