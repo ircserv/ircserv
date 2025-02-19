@@ -11,9 +11,9 @@ Message::~Message() {}
 
 Message::Message(const Message& other)
     : rawMessage(other.rawMessage),
-      prefix(other.prefix),
-      command(other.command),
-      params(other.params) {}
+    prefix(other.prefix),
+    command(other.command),
+    params(other.params) {}
 
 Message& Message::operator=(const Message& other) {
     if (this != &other) {
