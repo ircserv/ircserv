@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 14:50:04 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/20 03:01:47 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/20 06:16:02 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ namespace IRCCommand{
 
 
 bool validateNickname(std::string const &nickname){
-  const std::string FORBIDDEN = " \t\n\r\f\v:#";
+  const std::string FORBIDDEN = " \t\n\r\f\v:#@";
   if(nickname.empty())
     return false;
   if(nickname.find_first_of(FORBIDDEN) != std::string::npos){
