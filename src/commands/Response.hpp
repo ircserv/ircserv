@@ -17,8 +17,8 @@
 #define	ERR_NICKNAMEINUSE(client, nick)				("433 " + client + " " + nick + " :Nickname is already in use \r\n")
 
 #define	ERR_NEEDMOREPARAMS(client, command)		("461 " + client + " " + command + " :Not enough parameters \r\n")
-#define	ERR_ALREADYREGISTERED(client)					("462" + client + " :You may not reregister \r\n")
-#define	ERR_PASSWDMISMATCH(client)						("464" + client + " :Password incorrec \r\n")
+#define	ERR_ALREADYREGISTERED(client)					("462 " + client + " :You may not reregister \r\n")
+#define	ERR_PASSWDMISMATCH(client)						("464 " + client + " :Password incorrec \r\n")
 
 #define	ERR_CHANNELISFULL(client, channel)		("471 " + client + " " + channel + " :Cannot join channel (+l) \r\n")
 #define ERR_INVITEONLYCHAN(client, channel)		("473 " + client + " " + channel + " :Cannot join channel (+i) \r\n")
