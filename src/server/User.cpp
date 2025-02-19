@@ -60,6 +60,9 @@ int User::getSocket() const
 
 std::string User::getNickname() const
 {
+  if (nickname.empty()) {
+    return "unknown";
+  }
   return nickname;
 }
 

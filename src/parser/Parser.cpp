@@ -69,6 +69,7 @@ void Parser::parseParameters(const std::string& rawMessage, Message& msg) const 
         trailing = copied_raw.substr(trailing_pos + 2);
         copied_raw = copied_raw.substr(0, trailing_pos);
     }
+    
     while(!copied_raw.empty()){
         start = copied_raw.find_first_not_of(' ', 0);
         size_t end = copied_raw.find(' ', start);
