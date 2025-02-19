@@ -6,6 +6,16 @@ IRCServer *IRCServer::instance = NULL;
 IRCServer::IRCServer()
 : server(), events(), users(UserRepository::getInstance()), channels(ChannelRepository::getInstance()), password("gotohome")
 {
+  time_t rawtime;
+  time(&rawtime);
+        
+  char timeBuffer[80];
+  struct tm* timeinfo = localtime(&rawtime);
+  strftime(timeBuffer, sizeof(timeBuffer), "%Y-%m-%d %H:%M:%S", timeinfo);
+  
+  createdTime = ":This server was created ";
+  createdTime += timeBuffer;
+  createdTime += "KST";
 }
 
 IRCServer::~IRCServer(){}
@@ -28,6 +38,11 @@ void IRCServer::destroy()
   {
     delete instance;
   }
+}
+
+std::string const &IRCServer::getCreatedTime() const
+{
+  return createdTime;
 }
 
 void IRCServer::start(int port)

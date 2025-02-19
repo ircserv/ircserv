@@ -6,6 +6,7 @@
 #include "../server/User.hpp"
 #include "../server/UserRepository.hpp"
 #include "../server/IRCServer.hpp"
+#include "Response.hpp"
 
 #define CMD_CAP  "CAP"
 #define CMD_JOIN "JOIN"
