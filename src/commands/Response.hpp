@@ -8,6 +8,10 @@
 #define	RPL_MYINFO(client)										(":NIRC 004 " + client + " :NIRC v1.0.0 \r\n")
 #define	RPL_ISUPPORT(client)									(":NIRC 005 " + client + " : :are supported by this server \r\n")
 
+#define	RPL_TOPIC(client, channel, topic)			("332 " + client + " " + channel + " :" + topic + " \r\n")
+#define	RPL_NAMREPLY(client, channel, users)	("353 " + client + " " + channel + " = " + users + " \r\n")
+#define	RPL_ENDOFNAMES(client, channel)				("366 " + client + " " + channel + " :End of /NAMES list \r\n")
+
 #define ERR_NOSUCHCHANNEL(client, channel)		("403 " + client + " " + channel + " :No such channel \r\n")
 #define	ERR_TOOMANYCHANNELS(client, channel)	("405 " + client + " " + channel + " :You have joined too many channels \r\n")
 #define	ERR_NOORIGIN(client)									("409 " + client + " :No origin specified \r\n")
