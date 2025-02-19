@@ -7,6 +7,16 @@
 #include "../server/UserRepository.hpp"
 #include "../server/IRCServer.hpp"
 
+#define CMD_CAP  "CAP"
+#define CMD_JOIN "JOIN"
+#define CMD_NICK "NICK"
+#define CMD_PART "PART"
+#define CMD_PASS "PASS"
+#define CMD_PING "PING"
+#define CMD_PONG "PONG"
+#define CMD_USER "USER"
+#define CMD_QUIT "QUIT"
+
 namespace IRCCommand{
   // cap
   void cap(int clientSocket, void* message);
