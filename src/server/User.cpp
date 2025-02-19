@@ -79,7 +79,7 @@ std::string User::getRealname() const
 void User::join(Channel & channel)
 {
   channel.join(*this);
-  channels[channel.getName()] = &channel;
+  channels[channel.getName()] = channel;
 }
 
 void User::part(Channel & channel)
@@ -138,9 +138,9 @@ void User::setRealname(std::string realname)
 std::vector<Channel> User::getChannels()
 {
   std::vector<Channel> chans;
-  for(std::map<std::string, Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
+  for(std::map<std::string, Channel &>::iterator it = channels.begin(); it != channels.end(); ++it)
   {
-    chans.push_back(*(it->second));
+    chans.push_back(it->second);
   }
   return chans;
 }

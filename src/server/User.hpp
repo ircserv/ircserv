@@ -20,7 +20,7 @@ class User {
     std::string servername;
     std::string realname;
     bool registered;
-    std::map<std::string, Channel *> channels;
+    std::map<std::string, Channel &> channels;
     
   
   public:
