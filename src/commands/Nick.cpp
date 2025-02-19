@@ -33,17 +33,33 @@
 
 #include "IRCCommand.hpp"
 
+bool validateNickname(std::string const &nickname);
+
 namespace IRCCommand{
   void nick(fd clientSocket, void* message){
     IRCServer &ircServer = IRCServer::getInstance();
     UserRepository &users = UserRepository::getInstance();
     User *user = users.getUser(clientSocket);
     Message *msg = static_cast<Message*>(message);
+    std::cout << "[EVENT] NICK" << std::endl;
     
     if(!user->isRegistered()){
-      user->send("451" + user->getNickname() + " :You have not registered");
+      user->send("451 " + user->getNickname() + " :You have not registered");
       ircServer.enableWriteEvent(clientSocket);
-      return;
+      return ;
+    }
+    
+    std::vector<std::string> params = msg->getParams();
+    if (params.size() == 0) {
+      user->send("431" + user->getNickname() + " :No nickname given");
+      ircServer.enableWriteEvent(clientSocket);
+      return ;
+    }
+
+    std::string nickname = params[0];
+    if(!validateNickname(nickname)){
+      user->send("432" + user->getNickname() + " " + nickname + " :Erroneus nickname");
+      ircServer.enableWriteEvent(clientSocket);
     }
     
     user->setNickname(nickname);
@@ -57,4 +73,17 @@ namespace IRCCommand{
       ircServer.enableWriteEvent(clientSocket);  
     }
   }
+}
+
+
+
+bool validateNickname(std::string const &nickname){
+  const std::string FORBIDDEN = " \t\n\r\f\v:#";
+  if(nickname.empty())
+    return false;
+  if(nickname.find_first_of(FORBIDDEN) != std::string::npos){
+    return false;
+  }
+
+  return true;
 }
