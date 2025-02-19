@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Ping.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minhulee <minhulee@student.42seoul.kr>     +#+  +:+       +#+        */
+/*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 02:00:19 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/17 03:33:06 by minhulee         ###   ########seoul.kr  */
+/*   Updated: 2025/02/20 01:25:10 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,3 +26,25 @@
 // "<client> <command> :Not enough parameters"
 // ERR_NOORIGIN (409) - 클라가 PING을 신청했는데 token이 없을 때
 // "<client> :No origin specified"
+
+#include "IRCCommand.hpp"
+#include "../parser/Message.hpp"
+
+namespace IRCCommand {
+  void ping(int clientSocket, void* message) {
+    Message *msg = static_cast<Message *>(message);
+    IRCServer &server = IRCServer::getInstance();
+    UserRepository &users = UserRepository::getInstance();
+    User *user = users.getUser(clientSocket);
+
+    if (msg->getParams().size() == 0) {
+      user->send(ERR_NEEDMOREPARAMS(user->getNickname(), msg->getCommand()));
+    } else {
+      std::string token = msg->getParams()[0];
+      // TODO: when servername is defined, use that instead of inline string
+      user->send("PONG NIRC :" + token);
+    }
+    server.enableWriteEvent(clientSocket);
+  }
+
+}
