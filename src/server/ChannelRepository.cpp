@@ -26,7 +26,7 @@ void ChannelRepository::addChannel(Channel channel)
   if (hasChannel(channel.getName())) {
       throw std::invalid_argument("Channel already exists");
   }
-  channels.insert(std::make_pair(channel.getName(), channel));
+  channels.insert(std::make_pair(channel.getName(), Channel(channel)));
 }
 
 void ChannelRepository::removeChannel(Channel & channel)

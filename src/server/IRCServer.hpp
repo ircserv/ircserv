@@ -35,8 +35,6 @@ class IRCServer {
       static IRCServer *instance;
       TCPServer server;
       std::map<std::string, IRCEventCallback> events;
-      UserRepository &users;
-      ChannelRepository &channels;
       std::string password;
       std::string createdTime;
 

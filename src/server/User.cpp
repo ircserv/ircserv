@@ -79,7 +79,7 @@ std::string User::getRealname() const
 void User::join(Channel & channel)
 {
   channel.join(*this);
-  channels[channel.getName()] = channel;
+  channels[channel.getName()] = &channel;
 }
 
 void User::part(Channel & channel)
@@ -95,8 +95,7 @@ void User::send(std::string message)
   server.enableWriteEvent(client.getSocket());
 }
 
-void User::sendBufferFlush()
-{
+void User::sendBufferFlush() {
   client.sendBufferFlush();
 }
 
@@ -135,10 +134,10 @@ void User::setRealname(std::string realname)
   this->realname = realname;
 }
 
-std::vector<Channel> User::getChannels()
+std::vector<Channel *> User::getChannels()
 {
-  std::vector<Channel> chans;
-  for(std::map<std::string, Channel &>::iterator it = channels.begin(); it != channels.end(); ++it)
+  std::vector<Channel *> chans;
+  for(std::map<std::string, Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
   {
     chans.push_back(it->second);
   }
