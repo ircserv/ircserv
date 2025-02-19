@@ -34,6 +34,9 @@ namespace IRCCommand{
   // // join
   void join(int clientSocket, void* message);
 
+  // PING
+  void ping(int clientSocket, void* message);
+
   // // part
   // void part(int clientSocket, void* message);
 
