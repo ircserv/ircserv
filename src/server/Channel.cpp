@@ -12,7 +12,7 @@ Channel::Channel()
 Channel::Channel(std::string name, User &user)
 {
   this->name = name;
-  this->users[user.getSocket()] = user;
+  this->users[user.getSocket()] = &user;
   this->chops.insert(user.getNickname());
   this->mode = 0;
   this->key = "";
@@ -28,6 +28,11 @@ Channel::Channel(const Channel & other)
 {
   this->name = other.name;
   this->users = other.users;
+  this->chops = other.chops;
+  this->mode = other.mode;
+  this->key = other.key;
+  this->capacity = other.capacity;
+  this->topic = other.topic;
 }
 
 Channel & Channel::operator=(const Channel & other)
@@ -42,7 +47,7 @@ Channel & Channel::operator=(const Channel & other)
 
 void Channel::join(User & user)
 {
-  users[user.getSocket()] = user;
+  users[user.getSocket()] = &user;
 }
 
 void Channel::part(User & user)
@@ -52,9 +57,9 @@ void Channel::part(User & user)
 
 void Channel::send(User & user, std::string message)
 {
-  for(std::map<int, User&>::iterator it = users.begin(); it != users.end(); ++it){
+  for(std::map<int, User *>::iterator it = users.begin(); it != users.end(); ++it){
     if(it->first == user.getSocket()) {
-      it->second.send(message);
+      (it->second)->send(message);
     }
   }
   return ;
@@ -63,8 +68,8 @@ void Channel::send(User & user, std::string message)
 void Channel::broadcast(std::string message)
 {
   IRCServer &server = IRCServer::getInstance();
-  for(std::map<int, User&>::iterator it = users.begin(); it != users.end(); ++it){
-    it->second.send(message);
+  for(std::map<int, User *>::iterator it = users.begin(); it != users.end(); ++it){
+    it->second->send(message);
     server.enableWriteEvent(it->first);
   }
 }
@@ -72,8 +77,8 @@ void Channel::broadcast(std::string message)
 std::vector<User *> Channel::getUsers()
 {
     std::vector<User*> userList;
-    for(std::map<int, User&>::iterator it = users.begin(); it != users.end(); ++it) {
-        userList.push_back(&(it->second));
+    for(std::map<int, User *>::iterator it = users.begin(); it != users.end(); ++it) {
+        userList.push_back(it->second);
     }
     return userList;
 }

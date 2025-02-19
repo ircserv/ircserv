@@ -20,7 +20,7 @@ class User {
     std::string servername;
     std::string realname;
     bool registered;
-    std::map<std::string, Channel &> channels;
+    std::map<std::string, Channel *> channels;
     
   
   public:
@@ -47,7 +47,7 @@ class User {
     void setHostname(const std::string hostname);
     void setServername(const std::string servername);
 
-    std::vector<Channel> getChannels();
+    std::vector<Channel *> getChannels();
     bool isJoined(Channel & channel);
 
     void setRegistered(bool registered);
