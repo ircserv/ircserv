@@ -20,6 +20,7 @@
 #define	RPL_ENDOFNAMES(client, channel)									("366 " + client + " " + channel + " :End of /NAMES list")
 
 #define	ERR_NOSUCHNICK(client, nick)										("401 " + client + " " + nick + " :No such nick/channel")
+#define	ERR_CANNOTSENDTOCHAN(client, nick)							("404 " + client + " " + nick + " :Cannot send to channel")
 #define	ERR_NOSUCHCHANNEL(client, channel)							("403 " + client + " " + channel + " :No such channel")
 #define	ERR_TOOMANYCHANNELS(client, channel)						("405 " + client + " " + channel + " :You have joined too many channels")
 #define	ERR_NOORIGIN(client)														("409 " + client + " :No origin specified")

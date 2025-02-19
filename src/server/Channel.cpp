@@ -41,6 +41,11 @@ Channel & Channel::operator=(const Channel & other)
   {
     this->name = other.name;
     this->users = other.users;
+    this->chops = other.chops;
+    this->mode = other.mode;
+    this->key = other.key;
+    this->capacity = other.capacity;
+    this->topic = other.topic;
   }
   return *this;
 }
@@ -58,7 +63,7 @@ void Channel::part(User & user)
 void Channel::send(User & user, std::string message)
 {
   for(std::map<int, User *>::iterator it = users.begin(); it != users.end(); ++it){
-    if(it->first == user.getSocket()) {
+    if (it->first != user.getSocket()) {
       (it->second)->send(message);
     }
   }
@@ -67,12 +72,20 @@ void Channel::send(User & user, std::string message)
 
 void Channel::broadcast(std::string message)
 {
-  IRCServer &server = IRCServer::getInstance();
   for(std::map<int, User *>::iterator it = users.begin(); it != users.end(); ++it){
     it->second->send(message);
-    server.enableWriteEvent(it->first);
   }
 }
+
+void Channel::toOperators(User &sender, std::string const &message){
+  for(std::map<int, User *>::iterator it = users.begin(); it != users.end(); ++it){
+    if(chops.find(it->second->getNickname()) != chops.end() && it->second != &sender) {
+      it->second->send(message);
+    }
+  }
+
+}
+
 
 std::vector<User *> Channel::getUsers()
 {

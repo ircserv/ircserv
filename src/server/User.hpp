@@ -48,7 +48,7 @@ class User {
     void setServername(const std::string servername);
 
     std::vector<Channel *> getChannels();
-    bool isJoined(Channel & channel);
+    bool isJoined(std::string const &channel);
 
     void setRegistered(bool registered);
     bool isRegistered();

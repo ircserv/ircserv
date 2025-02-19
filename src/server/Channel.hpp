@@ -42,6 +42,8 @@ class Channel {
     void part(User &user);
     void send(User &user, std::string message);
     void broadcast(std::string message);
+    void toOperators(User &sender, std::string const &message);
+
     std::vector<User *> getUsers();
     const std::string &getName();
     const std::string &getSymbol();

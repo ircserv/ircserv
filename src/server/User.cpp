@@ -144,9 +144,9 @@ std::vector<Channel *> User::getChannels()
   return chans;
 }
 
-bool User::isJoined(Channel & channel)
+bool User::isJoined(std::string const &channelName)
 {
-  if(channels.find(channel.getName()) != channels.end()){
+  if(channels.find(channelName) != channels.end()){
     return true;
   }
   return false;

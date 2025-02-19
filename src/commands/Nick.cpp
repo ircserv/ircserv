@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 14:50:04 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/19 20:08:05 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/20 03:01:47 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,6 @@ namespace IRCCommand{
     }
   }
 }
-
 
 
 bool validateNickname(std::string const &nickname){

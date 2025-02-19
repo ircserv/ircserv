@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/16 23:52:43 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/19 19:44:39 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/20 03:43:30 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@ namespace IRCCommand {
       user->send(RPL_CREATED(user->getNickname(), ircServer.getCreatedTime()));
       user->send(RPL_MYINFO(user->getNickname()));
       user->send(RPL_ISUPPORT(user->getNickname())); 
+      ChannelRepository::getInstance().addChannel(Channel(user->getNickname(), *user));
       ircServer.enableWriteEvent(clientSocket);  
     }
   }
