@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 02:10:09 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/17 07:31:53 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/21 05:57:02 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,3 +19,29 @@
 // 성공시 응답 -> "Quit: " or "Quit: <reson>"
 // 이때, 사용자가 QUIT을 통해 연결을 종료한 게 아니라, PING-PONG 혹은 강제 종료로 종료된 경우
 // 그에 맞는 reason을 작성해서 보낸다 -> 맘대로 해라.
+
+
+#include "IRCCommand.hpp"
+
+namespace IRCCommand {
+  void quit(int clientSocket, void* message) {
+    Message *msg = static_cast<Message *>(message);
+    UserRepository &userRepo = UserRepository::getInstance();
+    User *user = userRepo.getUser(clientSocket);
+    std::string responseMessage = "ERROR :Closing Connection";
+    std::string broadcastMessage = "QUIT :Quit:";
+    if (msg->getParams().size() == 0) {
+      user->send(responseMessage);
+    } else {
+      user->send(responseMessage + ": " + msg->getParams().front());
+      broadcastMessage += " " + msg->getParams().front();
+    }
+
+    std::vector<Channel *> channels = user->getChannels();
+    for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it){
+      (*it)->send(*user, ":" + user->getNickname() + " " + broadcastMessage);
+      user->part(**it);
+    }
+    user->quit();
+  }
+}
