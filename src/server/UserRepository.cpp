@@ -56,14 +56,14 @@ User *UserRepository::getUser(int clientSocket)
   return NULL;
 }
 
-std::map<int,User> UserRepository::getUsers()
+std::map<int,User> &UserRepository::getUsers()
 {
   return _users;
 }
 
 bool UserRepository::hasUser(std::string nickname)
 {
-  if(getUser(nickname) != NULL)
+  if (getUser(nickname) != NULL)
   {
     return true;
   }

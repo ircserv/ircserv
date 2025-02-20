@@ -16,7 +16,7 @@ class UserRepository {
     void removeUser(int socket);
     User *getUser(std::string nickname);
     User *getUser(int clientSocket);
-    std::map<int, User> getUsers();
+    std::map<int, User> &getUsers();
     bool hasUser(std::string nickname);
 
   private:

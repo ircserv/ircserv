@@ -19,8 +19,9 @@ class User {
     std::string hostname;
     std::string servername;
     std::string realname;
-    bool registered;
+    bool authenticated;
     std::map<std::string, Channel *> channels;
+    bool registered;
     
   
   public:
@@ -50,8 +51,10 @@ class User {
     std::vector<Channel *> getChannels();
     bool isJoined(std::string const &channel);
 
-    void setRegistered(bool registered);
-    bool isRegistered();
+    void setAuth(bool status);
+    void setRegistered(bool status);
+    bool isauthentified(); // pass PASS command
+    bool isRegistered(); // pass NICK and USER command
 };  
 
 

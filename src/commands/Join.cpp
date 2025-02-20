@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 02:58:39 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/20 05:35:07 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/20 21:22:15 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ namespace IRCCommand {
 
     std::cout << "[EVENT] JOIN" << std::endl;
     // TODO: PASS / NICK / USER 에 대한 예외처리
-    if(!user->isRegistered()){
+    if (!user->isauthentified()) {
       user->send("451 " + user->getNickname() + " :You have not registered");
       server.enableWriteEvent(clientSocket);
       return ;

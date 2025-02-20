@@ -72,9 +72,10 @@ std::string TCPClient::receive(){
     return message;
   }
   ssize_t bytesReceived = recv(socket, data, BUFFER_SIZE, 0);
-  std::cout << "Received " << bytesReceived << " bytes" << std::endl;
-  std::cout << "Data: " << data << std::endl;
-  if(bytesReceived == -1){
+  std::cout << "[RECEIVED DATA FROM " << socket << "]" << std::endl;
+  std::cout << data << std::endl;
+  std::cout << "[RECEIVED DATA END]" << std::endl;
+  if (bytesReceived == -1) {
     connected = false;
     return "";
   }

@@ -7,7 +7,7 @@ User::User()
   hostname(""),
   servername(""),
   realname(""), 
-  registered(false),
+  authenticated(false),
   channels()
 {
 }
@@ -20,7 +20,7 @@ User::User(int socket)
       hostname(""),
       servername(""),
       realname(""), 
-      registered(false),
+      authenticated(false),
       channels()
   {}
 
@@ -33,7 +33,7 @@ User::User(const User & other)
   hostname(other.hostname),
   servername(other.servername),
   realname(other.realname), 
-  registered(other.registered),
+  authenticated(other.authenticated),
   channels(other.channels)
 {}
 
@@ -47,7 +47,7 @@ User & User::operator=(const User & other)
     this->hostname = other.hostname;
     this->servername = other.servername;
     this->realname = other.realname;
-    this->registered = other.registered;
+    this->authenticated = other.authenticated;
     this->channels = other.channels;
   }
   return *this;
@@ -60,9 +60,6 @@ int User::getSocket() const
 
 std::string User::getNickname() const
 {
-  if (nickname.empty()) {
-    return "unknown";
-  }
   return nickname;
 }
 
@@ -152,8 +149,18 @@ bool User::isJoined(std::string const &channelName)
   return false;
 }
 
-void User::setRegistered(bool registered){
-  this->registered = registered;
+void User::setAuth(bool status){
+  this->authenticated = status;
+}
+
+
+bool User::isauthentified()
+{
+  return authenticated;
+}
+
+void User::setRegistered(bool status){
+  this->registered = status;
 }
 
 bool User::isRegistered(){

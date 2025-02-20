@@ -8,6 +8,7 @@
 #include "UserRepository.hpp"
 #include "../parser/Message.hpp"
 #include "../parser/Parser.hpp"
+#include "middleware/middleware.hpp"
 
 class User;
 class Channel;

@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 14:50:04 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/20 06:16:02 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/20 14:11:13 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,50 +37,38 @@ bool validateNickname(std::string const &nickname);
 
 namespace IRCCommand{
   void nick(fd clientSocket, void* message){
-    IRCServer &ircServer = IRCServer::getInstance();
-    UserRepository &users = UserRepository::getInstance();
-    User *user = users.getUser(clientSocket);
+    UserRepository &userRepo = UserRepository::getInstance();
+    User *user = userRepo.getUser(clientSocket);
     Message *msg = static_cast<Message*>(message);
     std::cout << "[EVENT] NICK" << std::endl;
     
-    if(!user->isRegistered()){
-      user->send("451 " + user->getNickname() + " :You have not registered");
-      ircServer.enableWriteEvent(clientSocket);
-      return ;
-    }
-    
     std::vector<std::string> params = msg->getParams();
     if (params.size() == 0) {
-      user->send("431" + user->getNickname() + " :No nickname given");
-      ircServer.enableWriteEvent(clientSocket);
-      return ;
+      return user->send(ERR_NONICKNAMEGIVEN(user->getNickname()));
     }
-
     std::string nickname = params[0];
-    if(!validateNickname(nickname)){
-      user->send("432" + user->getNickname() + " " + nickname + " :Erroneus nickname");
-      ircServer.enableWriteEvent(clientSocket);
+    if (!validateNickname(nickname)) {
+      user->send(ERR_ERRONEUSNICKNAME(user->getNickname(), nickname));
     }
     
-    user->setNickname(nickname);
+    if(nickname == user->getNickname()) return ;
 
-    if(!user->getNickname().empty() && !user->getUsername().empty()){
-      user->send(RPL_WELCOME(user->getNickname()));
-      user->send(RPL_YOURHOST(user->getNickname()));
-      user->send(RPL_CREATED(user->getNickname(), ircServer.getCreatedTime()));
-      user->send(RPL_MYINFO(user->getNickname()));
-      user->send(RPL_ISUPPORT(user->getNickname())); 
-      ircServer.enableWriteEvent(clientSocket);  
+    if (userRepo.hasUser(nickname)) {
+      return user->send(ERR_NICKNAMEINUSE(user->getNickname(), nickname));
     }
+    if (!(user->getNickname().empty())) {
+      user->send(":" + user->getNickname() + " " + msg->getCommand() + " " + nickname);
+    }
+    user->setNickname(nickname);
   }
 }
 
 
-bool validateNickname(std::string const &nickname){
+bool validateNickname(std::string const &nickname) {
   const std::string FORBIDDEN = " \t\n\r\f\v:#@";
-  if(nickname.empty())
+  if (nickname.empty())
     return false;
-  if(nickname.find_first_of(FORBIDDEN) != std::string::npos){
+  if (nickname.find_first_of(FORBIDDEN) != std::string::npos) {
     return false;
   }
 
