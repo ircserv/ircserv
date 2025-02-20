@@ -19,6 +19,7 @@
 #define CMD_USER "USER"
 #define CMD_QUIT "QUIT"
 #define CMD_PRIVMSG "PRIVMSG"
+#define CMD_KICK "KICK"
 
 namespace IRCCommand{
   // cap
@@ -53,7 +54,7 @@ namespace IRCCommand{
 
 
   // // for chop
-  // void kick(int clientSocket, void* message);
+  void kick(int clientSocket, void* message);
   // void invite(int clientSocket, void* message);
   // void topic(int clientSocket, void* message);
   // void mode(int clientSocket, void* message);

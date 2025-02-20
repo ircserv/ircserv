@@ -41,6 +41,7 @@ class Channel {
     void join(User &user);
     void part(User &user);
     void send(User &user, std::string message);
+    void kick(User &user);
     void broadcast(std::string message);
     void toOperators(User &sender, std::string const &message);
 

@@ -70,6 +70,14 @@ void Channel::send(User & user, std::string message)
   return ;
 }
 
+void Channel::kick(User & user){
+  users.erase(user.getSocket());
+  if(chops.find(user.getNickname()) != chops.end()) {
+    chops.erase(user.getNickname());
+  }
+  user.kicked(this);
+}
+
 void Channel::broadcast(std::string message)
 {
   for(std::map<int, User *>::iterator it = users.begin(); it != users.end(); ++it){

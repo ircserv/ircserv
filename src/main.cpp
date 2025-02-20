@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 07:32:10 by yechakim          #+#    #+#             */
-/*   Updated: 2025/02/20 05:23:21 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/21 07:37:06 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ int main(){
   server.on(CMD_USER, IRCCommand::user);
   server.on(CMD_PING, IRCCommand::ping);
   server.on(CMD_PRIVMSG, IRCCommand::privmsg);
+  server.on(CMD_KICK, IRCCommand::kick);
   server.start(6667);
   server.destroy();
   return 0;
