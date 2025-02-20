@@ -40,7 +40,7 @@ namespace IRCCommand{
   void ping(int clientSocket, void* message);
 
   // // part
-  // void part(int clientSocket, void* message);
+  void part(int clientSocket, void* message);
 
   // // quit
   // void quit(int clientSocket, void* message);
