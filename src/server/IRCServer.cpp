@@ -63,7 +63,7 @@ void IRCServer::on(const std::string event, IRCEventCallback callback)
 void IRCServer::broadcast(const char * data)
 {
   UserRepository &userRepo = UserRepository::getInstance();
-  std::map<int, User> users = userRepo.getUsers();
+  std::map<int, User> &users = userRepo.getUsers();
   for(std::map<fd, User>::iterator it = users.begin(); it != users.end(); ++it)
   {
     this->send(it->first, data);
@@ -87,7 +87,7 @@ void IRCServer::disconnect(fd clientSocket)
 void IRCServer::disconnectAll()
 {
   UserRepository &userRepo = UserRepository::getInstance();
-  std::map<int, User> users = userRepo.getUsers();
+  std::map<int, User> &users = userRepo.getUsers();
   for(std::map<fd, User>::iterator it = users.begin(); it != users.end(); ++it)
   {
     this->disconnect(it->first);
@@ -123,11 +123,20 @@ void IRCServer::readCallback(fd eventSocket)
   std::vector<std::string> messages = user->receive();
   Parser parser;
   for(std::vector<std::string>::iterator it = messages.begin(); it != messages.end(); ++it){
-      // Message msg = Parser::parse(message);
       std::string msg = *it;
+
       Message currMsg = parser.parseMessage(*it);  
-      if(irc.events.find(currMsg.getCommand()) != irc.events.end()) {
+      if (irc.events.find(currMsg.getCommand()) != irc.events.end()) {
+        if (Middleware::authentifications(eventSocket, &currMsg)) {
+          continue ;
+        }
+        if (Middleware::registrations(eventSocket, &currMsg)) {
+          continue ;
+        }
+
         irc.events[currMsg.getCommand()](eventSocket, &currMsg);
+
+        Middleware::doWelcome(eventSocket, &currMsg);
       } else {
         std::cout << "[IRC] NO EVENT HANDLER FOR " << currMsg.getCommand() << std::endl;
       }

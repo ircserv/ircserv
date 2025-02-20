@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 02:58:39 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/19 16:36:00 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/20 21:22:15 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ namespace IRCCommand {
 
     std::cout << "[EVENT] JOIN" << std::endl;
     // TODO: PASS / NICK / USER 에 대한 예외처리
-    if(!user->isRegistered()){
+    if (!user->isauthentified()) {
       user->send("451 " + user->getNickname() + " :You have not registered");
       server.enableWriteEvent(clientSocket);
       return ;
@@ -142,13 +142,13 @@ namespace IRCCommand {
         // if(channel->isInviteOnly())
         // if(channel->isKeyProtected())
         // ban, except 는 요구 구현사항이 아니므로 생략
-        user->join(*channel);
       } else { // 채널이 없으면 새로 생성
         channelRepo.addChannel(Channel(channelName, *user));
         channel = channelRepo.getChannel(channelName);
       }
       // SUCESS FLOW 
       // NAMREPLY
+      user->join(*channel);
       std::vector<User *> users = channel->getUsers();
       std::string userNames;
       for(size_t i = 0; i < users.size(); i++){
@@ -164,7 +164,7 @@ namespace IRCCommand {
       if(!channel->getTopic().empty()) {
         user->send("332 "+ user->getNickname() + " " + channelName + " :" + channel->getTopic()); 
       }
-      user->send("353 " + user->getNickname() + channel->getSymbol() + " " + channelName + " :" + userNames);
+      user->send(RPL_NAMREPLY(user->getNickname(), channel->getSymbol(), channelName, userNames));
       user->send("366 " + user->getNickname() + " " + channelName + " :End of /NAMES list");
     }
     server.enableWriteEvent(clientSocket);

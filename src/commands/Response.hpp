@@ -20,6 +20,7 @@
 #define	RPL_ENDOFNAMES(client, channel)									("366 " + client + " " + channel + " :End of /NAMES list")
 
 #define	ERR_NOSUCHNICK(client, nick)										("401 " + client + " " + nick + " :No such nick/channel")
+#define	ERR_CANNOTSENDTOCHAN(client, nick)							("404 " + client + " " + nick + " :Cannot send to channel")
 #define	ERR_NOSUCHCHANNEL(client, channel)							("403 " + client + " " + channel + " :No such channel")
 #define	ERR_TOOMANYCHANNELS(client, channel)						("405 " + client + " " + channel + " :You have joined too many channels")
 #define	ERR_NOORIGIN(client)														("409 " + client + " :No origin specified")
@@ -32,9 +33,11 @@
 #define	ERR_NOTONCHANNEL(client, channel)								("442 " + client + " " + channel + ":You're not on that channel")
 #define	ERR_USERONCHANNEL(client, nick, channel)				("443 " + client + " " + nick + " " + channel + " :is already on channel")
 
+#define ERR_NOTREGISTERED(client)                       ("451 " + client + " :You have not registered")
+
 #define	ERR_NEEDMOREPARAMS(client, command)							("461 " + client + " " + command + " :Not enough parameters")
 #define	ERR_ALREADYREGISTERED(client)										("462 " + client + " :You may not reregister")
-#define	ERR_PASSWDMISMATCH(client)											("464 " + client + " :Password incorrec")
+#define	ERR_PASSWDMISMATCH(client)											("464 " + client + " :Password incorrect")
 
 #define	ERR_CHANNELISFULL(client, channel)							("471 " + client + " " + channel + " :Cannot join channel (+l)")
 #define	ERR_INVITEONLYCHAN(client, channel)							("473 " + client + " " + channel + " :Cannot join channel (+i)")

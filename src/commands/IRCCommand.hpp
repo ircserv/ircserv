@@ -2,6 +2,7 @@
 # define IRC_COMMAND_HPP
 
 #include <string>
+#include "../utils/utils.hpp"
 #include "../parser/Message.hpp"
 #include "../server/User.hpp"
 #include "../server/UserRepository.hpp"
@@ -17,6 +18,7 @@
 #define CMD_PONG "PONG"
 #define CMD_USER "USER"
 #define CMD_QUIT "QUIT"
+#define CMD_PRIVMSG "PRIVMSG"
 
 namespace IRCCommand{
   // cap
@@ -44,7 +46,7 @@ namespace IRCCommand{
   // void quit(int clientSocket, void* message);
   
   // // privmsg
-  // void privmsg(int clientSocket, void* message);
+  void privmsg(int clientSocket, void* message);
 
   // // notice
   // void notice(int clientSocket, void* message);

@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 07:27:35 by yechakim          #+#    #+#             */
-/*   Updated: 2025/02/18 12:12:05 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/20 09:02:39 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,9 @@ namespace IRCCommand {
     IRCServer &ircServer = IRCServer::getInstance();
     UserRepository &users = UserRepository::getInstance();
     User *user = users.getUser(clientSocket);
-    if (params.size() > 2 && params[1] == "LS"){
+
+    std::cout << "[EVENT] CAP" << params.size() << std::endl;
+    if (params.size() >=2 && params[0] == "LS"){
       user->send("CAP * LS :");
       ircServer.enableWriteEvent(clientSocket);
     }

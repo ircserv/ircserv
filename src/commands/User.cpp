@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/16 23:52:43 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/19 19:44:39 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/20 07:45:02 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,25 +40,20 @@ namespace IRCCommand {
     UserRepository &users = UserRepository::getInstance();
     User *user = users.getUser(clientSocket);
     
-    if (!user->isRegistered()) {
-      user->send("464 " + user->getNickname() + " :You hav not registered");
-      ircServer.enableWriteEvent(clientSocket);
-      return ;
+    if (!user->isauthentified()) {
+      return user->send(ERR_PASSWDMISMATCH(user->getNickname()));
     }
 
     if (!user->getRealname().empty()){
-      user->send(ERR_ALREADYREGISTERED(user->getNickname()));
-      ircServer.enableWriteEvent(clientSocket);
-      return ;
+      return user->send(ERR_ALREADYREGISTERED(user->getNickname()));
     }
 
     if(params.size() < 4){
-      user->send(ERR_NEEDMOREPARAMS(user->getNickname(), msg->getCommand()));
-      ircServer.enableWriteEvent(clientSocket);
-      return ;
+      return user->send(ERR_NEEDMOREPARAMS(user->getNickname(), msg->getCommand()));
     }
     std::string realname;
 
+    // TODO utils::join으로 분리
     for(size_t i = 3; i < params.size(); i++){
       realname += params[i];
       if(i != params.size() - 1){
