@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Kick.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minhulee <minhulee@student.42seoul.kr>     +#+  +:+       +#+        */
+/*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 00:27:02 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/20 01:00:28 by minhulee         ###   ########seoul.kr  */
+/*   Updated: 2025/02/21 07:41:10 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,3 +25,48 @@
 // -> nummeric으로 정의되진 않았습니다.
 
 // ex) KICK <channel> <users> <comment>
+
+#include "IRCCommand.hpp"
+
+namespace IRCCommand {
+  void kick(int clientSocket, void* message) {
+    Message *msg = static_cast<Message *>(message);
+    std::vector<std::string> params = msg->getParams();
+    UserRepository &userRepo = UserRepository::getInstance();
+    ChannelRepository &channelRepo = ChannelRepository::getInstance();
+    User *user = userRepo.getUser(clientSocket);
+    
+    if (params.size() < 2) {
+      return user->send(ERR_NEEDMOREPARAMS(user->getNickname(), "KICK"));
+    }
+    std::string channelName = params[0];
+    std::vector<std::string> kickedUsers = utils::split(params[1], ',');
+    std::string comment = params.size() > 2 ? params[2] : "";
+
+    if (!channelRepo.hasChannel(channelName)) {
+      return user->send(ERR_NOSUCHCHANNEL(user->getNickname(), channelName));
+    }
+
+    Channel *channel = channelRepo.getChannel(channelName);
+    if (!channel->hasUser(*user)){
+      return user->send(ERR_NOTONCHANNEL(user->getNickname(), channelName));
+    }
+
+    if (!channel->isOperator(*user)){
+      return user->send(ERR_CHANOPRIVSNEEDED(user->getNickname(), channelName));
+    }
+
+    for (std::vector<std::string>::iterator it = kickedUsers.begin(); it != kickedUsers.end(); ++it) {
+      User *target = userRepo.getUser(*it);
+      if (!target || !channel->hasUser(*target)) {
+        user->send(ERR_USERNOTINCHANNEL(user->getNickname(), *it, channelName));
+        continue ;
+      }
+      std::string broadcastMessage = ":" + user->getNickname() + " KICK " + channelName + " " + target->getNickname();
+      if (!comment.empty())
+        broadcastMessage += " :" + comment;
+      channel->broadcast(broadcastMessage);
+      channel->kick(*target);
+    }
+  }
+}

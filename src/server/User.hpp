@@ -22,6 +22,7 @@ class User {
     bool authenticated;
     std::map<std::string, Channel *> channels;
     bool registered;
+    bool quitFlag;
     
   
   public:
@@ -39,6 +40,7 @@ class User {
     void join(Channel & channel);
     void part(Channel & channel);
     void send(std::string message);
+    void kicked(Channel *channel);
     void sendBufferFlush();
     std::vector<std::string> receive();
     
@@ -55,6 +57,8 @@ class User {
     void setRegistered(bool status);
     bool isauthentified(); // pass PASS command
     bool isRegistered(); // pass NICK and USER command
+    void quit();
+    bool isQuit();
 };  
 
 

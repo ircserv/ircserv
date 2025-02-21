@@ -8,7 +8,8 @@ User::User()
   servername(""),
   realname(""), 
   authenticated(false),
-  channels()
+  channels(),
+  quitFlag(false)
 {
 }
 
@@ -21,7 +22,8 @@ User::User(int socket)
       servername(""),
       realname(""), 
       authenticated(false),
-      channels()
+      channels(),
+      quitFlag(false)
   {}
 
 User::~User(){}
@@ -34,7 +36,8 @@ User::User(const User & other)
   servername(other.servername),
   realname(other.realname), 
   authenticated(other.authenticated),
-  channels(other.channels)
+  channels(other.channels),
+  quitFlag(other.quitFlag)
 {}
 
 User & User::operator=(const User & other)
@@ -49,6 +52,7 @@ User & User::operator=(const User & other)
     this->realname = other.realname;
     this->authenticated = other.authenticated;
     this->channels = other.channels;
+    this->quitFlag = other.quitFlag;
   }
   return *this;
 }
@@ -90,6 +94,10 @@ void User::send(std::string message)
   client.send(message.c_str());
   IRCServer &server = IRCServer::getInstance();
   server.enableWriteEvent(client.getSocket());
+}
+
+void User::kicked(Channel * channel){
+  channels.erase(channel->getName());
 }
 
 void User::sendBufferFlush() {
@@ -165,4 +173,12 @@ void User::setRegistered(bool status){
 
 bool User::isRegistered(){
   return registered;
+}
+
+void User::quit() {
+  quitFlag = true;
+}
+
+bool User::isQuit() {
+  return quitFlag;
 }

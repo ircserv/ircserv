@@ -146,10 +146,13 @@ void IRCServer::readCallback(fd eventSocket)
 
 void IRCServer::writeCallback(fd eventSocket)
 {
-  // IRCServer *irc = static_cast<IRCServer*>(server);
+  IRCServer &irc = IRCServer::getInstance();
   UserRepository &userRepo = UserRepository::getInstance();
   User *user = userRepo.getUser(eventSocket);
   user->sendBufferFlush();
+  if(user->isQuit()){
+    irc.disconnect(eventSocket);
+  }
 }
 
 void IRCServer::errorCallback(fd eventSocket)
