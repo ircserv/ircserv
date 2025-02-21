@@ -25,7 +25,7 @@ class Channel {
     std::string name;
     std::string symbol;
     std::map<int, User *> users;
-    std::set<std::string> chops;
+    std::set<User *> chops;
     std::string key;
     size_t capacity;
     std::string topic;
