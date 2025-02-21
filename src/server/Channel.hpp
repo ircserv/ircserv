@@ -64,6 +64,7 @@ class Channel {
 
     bool authenticate(std::string key);
     void setMode(char modes, bool flag, void *key);
+  	void setTopic(const std::string &topc);
     void invite(User &user);
 
 };
