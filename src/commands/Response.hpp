@@ -48,4 +48,6 @@
 #define ERR_UMODEUNKNOWNFLAG(client)										("501 " + client + " :Unknown MODE flag")
 #define ERR_USERSDONTMATCH(client)											("502 " + client + " :Cant change mode for other users")
 
+#define ERR_INVALIDMODEPARAM(client, channel, mode, param)  ("696 " + client + " " + channel + " " + mode + " :Invalid mode parameter")
+
 #endif

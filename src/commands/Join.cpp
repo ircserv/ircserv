@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 02:58:39 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/20 21:22:15 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/21 18:44:56 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,28 +66,78 @@
 
 #include "IRCCommand.hpp"
 
-// FIXME: split 함수를 추후 util namespace로 옮길 것
-std::vector<std::string> split(std::string &str, char delim) {
-  std::vector<std::string> result;
-  std::string token;
-  std::string temp = str;
+bool validateChannelName(const std::string &channelName);
 
-  while(!temp.empty()) {
-    size_t end = temp.find(delim);
-    if(end == std::string::npos) {
-      token = temp;
-      result.push_back(token);
-      break;
+namespace IRCCommand {
+  void join(fd clientSocket, void* message){
+    IRCServer &server = IRCServer::getInstance();
+    Message *msg = static_cast<Message*>(message);
+    std::vector<std::string> params = msg->getParams();
+    User *user = UserRepository::getInstance().getUser(clientSocket);
+
+    if(params.empty()) {
+      user->send(ERR_NEEDMOREPARAMS(user->getNickname(), "JOIN"));
+      server.enableWriteEvent(clientSocket);
+      return ;
     }
-    token = temp.substr(0, temp.find(delim));
-    result.push_back(token);
-    temp = temp.substr(temp.find(delim) + 1);
+
+    ChannelRepository &channelRepo = ChannelRepository::getInstance();
+
+    std::vector<std::string> channelNames = utils::split(params[0], ',');
+    std::vector<std::string> keys = params.size() > 1 ? utils::split(params[1], ',') : std::vector<std::string>();
+    
+    size_t j = 0;
+    for (std::vector<std::string>::iterator channelName = channelNames.begin();
+      channelName != channelNames.end(); ++channelName) {
+      if(!validateChannelName(*channelName)) { // 채널이름이 유효하지 않은 경우 
+        user->send(ERR_BADCHANMASK(*channelName));
+        continue;
+      }
+      
+      Channel *channel = channelRepo.getChannel(*channelName); // 채널이 존재하는지 확인
+      
+      if (!channel) {
+        channelRepo.addChannel(Channel(*channelName, *user));
+        channel = channelRepo.getChannel(*channelName);
+      }
+        // FIXME: 채널에 가입할 수 있는지 확인 추가 필요
+      if (channel->isKeyProtected() && j >= keys.size()){
+        user->send(ERR_BADCHANNELKEY(user->getNickname(), *channelName));
+        continue ;
+      }
+      if (channel->isKeyProtected() && !channel->authenticate(keys[j++])){
+        user->send(ERR_BADCHANNELKEY(user->getNickname(), *channelName)); 
+        continue ;
+      }
+      if (channel->isFull()) {
+        user->send(ERR_CHANNELISFULL(user->getNickname(), *channelName));
+        continue ;
+      }
+      if (channel->isInviteOnly()){
+        if (!channel->isInvited(*user)){
+          user->send(ERR_INVITEONLYCHAN(user->getNickname(), *channelName));
+          continue ;
+        }
+      }
+    
+
+    user->join(*channel);
+    std::vector<User *> users = channel->getUsers();
+    std::string userNames;
+    for(std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it){
+      userNames += channel->isOperator(**it) ? "@" : "";
+      userNames += (*it)->getNickname();
+      userNames += *it == users.back() ? "" : " ";
+    }
+    channel->broadcast(":" + user->getNickname() + " JOIN " + *channelName);
+    if(!channel->getTopic().empty()) {
+      user->send(RPL_TOPIC(user->getNickname(), *channelName, channel->getTopic()));
+    }
+    user->send(RPL_NAMREPLY(user->getNickname(), channel->getSymbol(), *channelName, userNames));
+    user->send(RPL_ENDOFNAMES(user->getNickname(), *channelName));
+    }
   }
-
-  
-  return result;
 }
-
 
 bool validateChannelName(const std::string &channelName){
   if(channelName[0] != '#' && channelName[0] != '&'){
@@ -97,76 +147,4 @@ bool validateChannelName(const std::string &channelName){
     return false;
   }
   return true;
-}
-
-
-namespace IRCCommand {
-  void join(fd clientSocket, void* message){
-    IRCServer &server = IRCServer::getInstance();
-    Message *msg = static_cast<Message*>(message);
-    std::vector<std::string> params = msg->getParams();
-    User *user = UserRepository::getInstance().getUser(clientSocket);
-
-    std::cout << "[EVENT] JOIN" << std::endl;
-    // TODO: PASS / NICK / USER 에 대한 예외처리
-    if (!user->isauthentified()) {
-      user->send("451 " + user->getNickname() + " :You have not registered");
-      server.enableWriteEvent(clientSocket);
-      return ;
-    }
-
-    if(params.size() < 1) {
-      user->send("461" + msg->getCommand() + " :Not enough parameters");
-      server.enableWriteEvent(clientSocket);
-      return ;
-    }
-
-    ChannelRepository &channelRepo = ChannelRepository::getInstance();
-
-    std::vector<std::string> channelNames = split(params[0], ',');
-    std::vector<std::string> keys;
-    if (params.size() > 1) {
-      keys = split(params[1], ',');
-    }
-    for(size_t i = 0; i < channelNames.size(); i++){
-      std::string channelName = channelNames[i];
-      if(!validateChannelName(channelName)){ // 채널이름이 유효하지 않은 경우 
-        user->send("476 " + channelName + " :Bad Channel Mask");
-        continue;
-      }
-      Channel *channel = channelRepo.getChannel(channelName); // 채널이 존재하는지 확인
-      
-      if(channel){
-        // FIXME: 채널에 가입할 수 있는지 확인 추가 필요
-        // if(channel->isFull())
-        // if(channel->isInviteOnly())
-        // if(channel->isKeyProtected())
-        // ban, except 는 요구 구현사항이 아니므로 생략
-      } else { // 채널이 없으면 새로 생성
-        channelRepo.addChannel(Channel(channelName, *user));
-        channel = channelRepo.getChannel(channelName);
-      }
-      // SUCESS FLOW 
-      // NAMREPLY
-      user->join(*channel);
-      std::vector<User *> users = channel->getUsers();
-      std::string userNames;
-      for(size_t i = 0; i < users.size(); i++){
-        if(channel->isOperator(*users[i])){
-          userNames += "@";
-        }
-        userNames += users[i]->getNickname();
-        if(i != users.size() - 1){
-          userNames += " ";
-        }
-      }
-      channel->broadcast(":" + user->getNickname() + " JOIN " + channelName);
-      if(!channel->getTopic().empty()) {
-        user->send("332 "+ user->getNickname() + " " + channelName + " :" + channel->getTopic()); 
-      }
-      user->send(RPL_NAMREPLY(user->getNickname(), channel->getSymbol(), channelName, userNames));
-      user->send("366 " + user->getNickname() + " " + channelName + " :End of /NAMES list");
-    }
-    server.enableWriteEvent(clientSocket);
-  }
 }

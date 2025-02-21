@@ -4,9 +4,7 @@
 
 Channel::Channel()
 : name(""), symbol("="), users(), chops(), key(""), capacity(0), topic(""), mode(0)
-{
-
-}
+{}
 
 
 Channel::Channel(std::string name, User &user)
@@ -73,9 +71,9 @@ void Channel::send(User & user, std::string message)
   return ;
 }
 
-void Channel::kick(User & user){
+void Channel::kick(User & user) {
   users.erase(user.getSocket());
-  if(chops.find(&user) != chops.end()){
+  if (chops.find(&user) != chops.end()) {
     chops.erase(&user);
   }
   user.kicked(this);
@@ -83,17 +81,26 @@ void Channel::kick(User & user){
 
 void Channel::broadcast(std::string message)
 {
-  for(std::map<int, User *>::iterator it = users.begin(); it != users.end(); ++it){
+  for (std::map<int, User *>::iterator it = users.begin(); it != users.end(); ++it) {
     it->second->send(message);
   }
 }
 
-void Channel::toOperators(User &sender, std::string const &message){
+void Channel::toOperators(User &sender, std::string const &message) {
   for (std::set<User *>::iterator it = chops.begin(); it != chops.end(); ++it){
     if(*it != &sender){
       (*it)->send(message);
     }
   }
+}
+
+User *Channel::getUser(std::string const &username){
+  for(std::map<int, User *>::iterator it = users.begin(); it != users.end(); ++it) {
+    if(it->second->getNickname() == username) {
+      return it->second;
+    }
+  }
+  return NULL;
 }
 
 
@@ -122,9 +129,36 @@ const std::string &Channel::getTopic()
   return topic;
 }
 
+const std::string Channel::getModeString() {
+  std::string modeString = "+";
+  if (mode & MODE_INVITE) {
+    modeString += "i";
+  }
+  if (mode & MODE_TOPIC) {
+    modeString += "t";
+  }
+  if (mode & MODE_KEY) {
+    modeString += "k";
+  }
+  if (mode & MODE_LIMIT) {
+    modeString += "l";
+  }
+
+  return modeString;
+}
+
 bool Channel::hasUser(User & user)
 {
   return users.find(user.getSocket()) != users.end();
+}
+
+bool Channel::hasUser(std::string const &userName) {
+  for (std::map<int, User *>::iterator it = users.begin(); it != users.end(); ++it) {
+    if (it->second->getNickname() == userName) {
+      return true;
+    }
+  }
+  return false;
 }
 
 bool Channel::isFull()
@@ -163,10 +197,28 @@ bool Channel::authenticate(std::string key)
   return key == this->key;
 }
 
-void Channel::setMode(std::string mode, std::vector<std::string> keys)
-{
-  (void)mode;
-  (void)keys;
+void Channel::setMode(char mode, bool flag, void *key = NULL) {
+  std::map<char, char> modemap;
+  modemap['i'] = MODE_INVITE;
+  modemap['t'] = MODE_TOPIC;
+  modemap['k'] = MODE_KEY;
+  modemap['l'] = MODE_LIMIT;
+
+  if(flag && mode != 'o') {
+    this->mode |= modemap[mode];
+  } else {
+    this->mode &= ~modemap[mode];
+  }
+  
+  if(mode == 'k') {
+    this->key = std::string(static_cast<char *>(key));
+  } else if (mode == 'l') {
+    this->capacity = std::stoi(static_cast<char *>(key));
+  } else if (mode == 'o') {
+    User *user = getUser(static_cast<char *>(key));
+    if (!flag) chops.erase(user);
+    else chops.insert(user);
+  }
 }
 
 void Channel::invite(User & user) {

@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 00:27:02 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/21 07:41:10 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/21 10:03:23 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,12 +48,12 @@ namespace IRCCommand {
     }
 
     Channel *channel = channelRepo.getChannel(channelName);
-    if (!channel->hasUser(*user)){
-      return user->send(ERR_NOTONCHANNEL(user->getNickname(), channelName));
-    }
-
     if (!channel->isOperator(*user)){
       return user->send(ERR_CHANOPRIVSNEEDED(user->getNickname(), channelName));
+    }
+    
+    if (!channel->hasUser(*user)){
+      return user->send(ERR_NOTONCHANNEL(user->getNickname(), channelName));
     }
 
     for (std::vector<std::string>::iterator it = kickedUsers.begin(); it != kickedUsers.end(); ++it) {

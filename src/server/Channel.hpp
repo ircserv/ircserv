@@ -12,7 +12,6 @@ enum CH_MODE {
   MODE_INVITE = 1, // - i : 초대만 가능한 채널로 설정/행제
   MODE_TOPIC = 2, // - t:  topic명령어를 채널의 관리자로 제한 설정/해제
   MODE_KEY  = 4, // - k: 채널의 패스워드 설정/해제
-  MODE_OPERATOR = 8, // - o: 채널의 관리자 설정/해제
   MODE_LIMIT = 16, // - l: 채널의 유저제한 설정/해제
 };
 
@@ -33,25 +32,29 @@ class Channel {
     std::set<User *> invitedUsers;
 
 
-
   public:
     Channel();
     Channel(std::string name, User &user);
     ~Channel();
     Channel(const Channel & other);
     Channel & operator=(const Channel & other);
+
     void join(User &user);
     void part(User &user);
     void send(User &user, std::string message);
     void kick(User &user);
+    void makeOperator(std::string const &nickname);
     void broadcast(std::string message);
     void toOperators(User &sender, std::string const &message);
 
+    User *getUser(std::string const &username);
     std::vector<User *> getUsers();
     const std::string &getName();
     const std::string &getSymbol();
     const std::string &getTopic();
+    const std::string getModeString();
     bool hasUser(User &user);
+    bool hasUser(std::string const &user);
     bool isFull();
     bool isInviteOnly();
     bool isKeyProtected();
@@ -60,7 +63,7 @@ class Channel {
     bool isInvited(User &user);
 
     bool authenticate(std::string key);
-    void setMode(std::string mode, std::vector<std::string> keys);
+    void setMode(char modes, bool flag, void *key);
     void invite(User &user);
 
 };

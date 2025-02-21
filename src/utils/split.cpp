@@ -21,4 +21,13 @@ namespace utils {
 
     return result;
   }
+
+  bool isNumber(std::string const &str) {
+    for (size_t i = 0; i < str.size(); i++) {
+      if (!std::isdigit(str[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
 }
