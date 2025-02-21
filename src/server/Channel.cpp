@@ -221,6 +221,11 @@ void Channel::setMode(char mode, bool flag, void *key = NULL) {
   }
 }
 
+void	Channel::setTopic(const std::string &topc)
+{
+	topic = topc;
+}
+
 void Channel::invite(User & user) {
   invitedUsers.insert(&user);
 }
