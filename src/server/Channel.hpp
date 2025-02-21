@@ -30,6 +30,8 @@ class Channel {
     size_t capacity;
     std::string topic;
     char mode;
+    std::set<User *> invitedUsers;
+
 
 
   public:
@@ -55,10 +57,12 @@ class Channel {
     bool isKeyProtected();
     bool isOperator(User &user);
     bool isLimit();
+    bool isInvited(User &user);
+
     bool authenticate(std::string key);
     void setMode(std::string mode, std::vector<std::string> keys);
-    
-    void sendBufferFlush();
+    void invite(User &user);
+
 };
 
 

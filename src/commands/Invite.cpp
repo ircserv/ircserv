@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Invite.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minhulee <minhulee@student.42seoul.kr>     +#+  +:+       +#+        */
+/*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 00:19:56 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/20 00:25:31 by minhulee         ###   ########seoul.kr  */
+/*   Updated: 2025/02/21 11:23:05 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,3 +26,43 @@
 // -> A가 B를 초대하고 성공한 경우
 // A는 RPL_INVITING 응답을 전달
 // B는 "INVITE B <channel> :A" 의 일련의 문자열을 전달
+
+#include "IRCCommand.hpp"
+
+namespace IRCCommand {
+  void invite(int clientSocket, void* message) {
+    Message *msg = static_cast<Message *>(message);
+    std::vector<std::string> params = msg->getParams();
+    UserRepository &userRepo = UserRepository::getInstance();
+    ChannelRepository &channelRepo = ChannelRepository::getInstance();
+    User *user = userRepo.getUser(clientSocket);
+  
+    if (params.size() < 2) {
+      return user->send(ERR_NEEDMOREPARAMS(user->getNickname(), "INVITE"));
+    }
+    
+    User *target = userRepo.getUser(params[0]);
+
+    if (!target) {
+      return user->send(ERR_NOSUCHNICK(user->getNickname(), params[0]));
+    }
+
+    Channel *channel = channelRepo.getChannel(params[1]);
+
+    if (!channel || !channel->hasUser(*user)){
+      return user->send(ERR_NOTONCHANNEL(user->getNickname(), params[1]));
+    }
+
+    if (channel->isInviteOnly() && !channel->isOperator(*user)){
+      return user->send(ERR_CHANOPRIVSNEEDED(user->getNickname(), params[1]));
+    }
+
+    if (channel->hasUser(*target)){
+      return user->send(ERR_USERONCHANNEL(user->getNickname(), target->getNickname(), channel->getName()));
+    }
+
+    user->send(RPL_INVITING(user->getNickname(), target->getNickname(), channel->getName()));
+    target->send(":" + user->getNickname() + " INVITE " + target->getNickname() + " " + channel->getName());
+    channel->invite(*target);
+  }  
+} // namespace IRCCommand

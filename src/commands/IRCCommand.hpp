@@ -55,7 +55,7 @@ namespace IRCCommand{
 
   // // for chop
   void kick(int clientSocket, void* message);
-  // void invite(int clientSocket, void* message);
+  void invite(int clientSocket, void* message);
   // void topic(int clientSocket, void* message);
   // void mode(int clientSocket, void* message);
   
