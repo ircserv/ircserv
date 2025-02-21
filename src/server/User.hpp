@@ -40,6 +40,7 @@ class User {
     void join(Channel & channel);
     void part(Channel & channel);
     void send(std::string message);
+    void kicked(Channel *channel);
     void sendBufferFlush();
     std::vector<std::string> receive();
     

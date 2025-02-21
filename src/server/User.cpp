@@ -96,6 +96,10 @@ void User::send(std::string message)
   server.enableWriteEvent(client.getSocket());
 }
 
+void User::kicked(Channel * channel){
+  channels.erase(channel->getName());
+}
+
 void User::sendBufferFlush() {
   client.sendBufferFlush();
 }
