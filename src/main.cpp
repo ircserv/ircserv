@@ -23,6 +23,8 @@ int main(){
   server.on(CMD_PING, IRCCommand::ping);
   server.on(CMD_PRIVMSG, IRCCommand::privmsg);
   server.on(CMD_QUIT, IRCCommand::quit);
+  server.on(CMD_PART, IRCCommand::part);
+
   server.start(6667);
   server.destroy();
   return 0;
