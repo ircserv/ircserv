@@ -13,7 +13,7 @@ Channel::Channel(std::string name, User &user)
 {
   this->name = name;
   this->users[user.getSocket()] = &user;
-  this->chops.insert(user.getNickname());
+  this->chops.insert(&user);
   this->mode = 0;
   this->key = "";
   this->capacity = -1;
@@ -58,6 +58,9 @@ void Channel::join(User & user)
 void Channel::part(User & user)
 {
   users.erase(user.getSocket());
+  if(chops.find(&user) != chops.end()){
+    chops.erase(&user);
+  }
 }
 
 void Channel::send(User & user, std::string message)
@@ -72,8 +75,8 @@ void Channel::send(User & user, std::string message)
 
 void Channel::kick(User & user){
   users.erase(user.getSocket());
-  if(chops.find(user.getNickname()) != chops.end()) {
-    chops.erase(user.getNickname());
+  if(chops.find(&user) != chops.end()){
+    chops.erase(&user);
   }
   user.kicked(this);
 }
@@ -86,12 +89,11 @@ void Channel::broadcast(std::string message)
 }
 
 void Channel::toOperators(User &sender, std::string const &message){
-  for(std::map<int, User *>::iterator it = users.begin(); it != users.end(); ++it){
-    if(chops.find(it->second->getNickname()) != chops.end() && it->second != &sender) {
-      it->second->send(message);
+  for (std::set<User *>::iterator it = chops.begin(); it != chops.end(); ++it){
+    if(*it != &sender){
+      (*it)->send(message);
     }
   }
-
 }
 
 
@@ -143,9 +145,8 @@ bool Channel::isKeyProtected()
   return mode & MODE_KEY;
 }
 
-bool Channel::isOperator(User & user)
-{
-  return chops.find(user.getNickname()) != chops.end();
+bool Channel::isOperator(User & user) {
+  return chops.find(&user) != chops.end();
 }
 
 bool Channel::isLimit()
