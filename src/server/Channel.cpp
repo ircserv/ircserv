@@ -154,6 +154,10 @@ bool Channel::isLimit()
   return mode & MODE_LIMIT;
 }
 
+bool Channel::isInvited(User & user){
+  return invitedUsers.find(&user) != invitedUsers.end();
+}
+
 bool Channel::authenticate(std::string key)
 {
   return key == this->key;
@@ -165,4 +169,6 @@ void Channel::setMode(std::string mode, std::vector<std::string> keys)
   (void)keys;
 }
 
-
+void Channel::invite(User & user) {
+  invitedUsers.insert(&user);
+}
