@@ -58,6 +58,9 @@ void Channel::join(User & user)
 void Channel::part(User & user)
 {
   users.erase(user.getSocket());
+  if(chops.find(&user) != chops.end()){
+    chops.erase(&user);
+  }
 }
 
 void Channel::send(User & user, std::string message)
@@ -72,8 +75,8 @@ void Channel::send(User & user, std::string message)
 
 void Channel::kick(User & user){
   users.erase(user.getSocket());
-  if(chops.find(user.getNickname()) != chops.end()) {
-    chops.erase(user.getNickname());
+  if(chops.find(&user) != chops.end()){
+    chops.erase(&user);
   }
   user.kicked(this);
 }
