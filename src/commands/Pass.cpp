@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/16 23:32:36 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/20 09:25:04 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/24 11:57:13 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@ namespace IRCCommand {
     User *user = users.getUser(clientSocket);
     std::vector<std::string> params = msg->getParams();
     std::string username = user->getNickname().empty() ? "unknown" : user->getNickname();
+
+    // // std::cout << "PASS command from " << username << std::endl;
 
     if (params.size() == 0) {
       return user->send(ERR_NEEDMOREPARAMS(username, msg->getCommand()));

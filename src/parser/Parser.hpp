@@ -22,9 +22,11 @@ public:
 
 private:
     // helper 함수들은 const로 선언하여 객체의 상태를 변경하지 않음을 보장
-    void parsePrefix(const std::string& rawMessage, Message& msg) const;
-    void parseCommand(const std::string& rawMessage, Message& msg) const;
-    void parseParameters(const std::string& rawMessage, Message& msg) const;
+    void parsePrefix(std::string& rawMessage, Message& msg) const;
+    void parseCommand(std::string& rawMessage, Message& msg) const;
+    void parseParameters(std::string& rawMessage, Message& msg) const;
+    bool hasTrailing(std::string const &raw) const;
+    
 
     
     

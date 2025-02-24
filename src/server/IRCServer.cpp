@@ -4,7 +4,7 @@
 IRCServer *IRCServer::instance = NULL;
 
 IRCServer::IRCServer()
-: server(), events(), password("gotohome")
+: server(), events(), password()
 {
   time_t rawtime;
   time(&rawtime);
@@ -45,14 +45,28 @@ std::string const &IRCServer::getCreatedTime() const
   return createdTime;
 }
 
-void IRCServer::start(int port)
+void IRCServer::setPort(int port) {
+  server.setPort(port);
+}
+
+void IRCServer::setIp(std::string ip)
+{
+  server.setIp(ip);
+}
+
+void IRCServer::setPassword(std::string password)
+{
+  this->password = password;
+}
+
+void IRCServer::start()
 {
   server.setAcceptCallback(acceptCallback);
   server.setDisconnectCallback(disconnectCallback);
   server.setReadCallback(readCallback);
   server.setWriteCallback(writeCallback);
   server.setErrorCallback(errorCallback);
-  server.start(port);
+  server.start();
 }
 
 void IRCServer::on(const std::string event, IRCEventCallback callback)
@@ -60,7 +74,7 @@ void IRCServer::on(const std::string event, IRCEventCallback callback)
   this->events[event] = callback;
 }
 
-void IRCServer::broadcast(const char * data)
+void IRCServer::broadcast(const std::string &data)
 {
   UserRepository &userRepo = UserRepository::getInstance();
   std::map<int, User> &users = userRepo.getUsers();
@@ -70,7 +84,7 @@ void IRCServer::broadcast(const char * data)
   }
 }
 
-void IRCServer::send(fd clientSocket, const char * data)
+void IRCServer::send(fd clientSocket, const std::string &data)
 {
   UserRepository &users = UserRepository::getInstance();
   users.getUser(clientSocket)->send(data);
@@ -124,7 +138,6 @@ void IRCServer::readCallback(fd eventSocket)
   Parser parser;
   for(std::vector<std::string>::iterator it = messages.begin(); it != messages.end(); ++it){
       std::string msg = *it;
-
       Message currMsg = parser.parseMessage(*it);  
       if (irc.events.find(currMsg.getCommand()) != irc.events.end()) {
         if (Middleware::authentifications(eventSocket, &currMsg)) {
@@ -138,7 +151,7 @@ void IRCServer::readCallback(fd eventSocket)
 
         Middleware::doWelcome(eventSocket, &currMsg);
       } else {
-        std::cout << "[IRC] NO EVENT HANDLER FOR " << currMsg.getCommand() << std::endl;
+        irc.send(eventSocket, ERR_UNKOWNCOMMAND(user->getNickname(), currMsg.getCommand()));
       }
       
   }
@@ -158,7 +171,7 @@ void IRCServer::writeCallback(fd eventSocket)
 void IRCServer::errorCallback(fd eventSocket)
 {
   IRCServer &irc = IRCServer::getInstance();
-  std::cout << "Error on socket " << eventSocket << std::endl;
+  // // std::cout << "Error on socket " << eventSocket << std::endl;
 
   irc.disconnect(eventSocket);
   //TODO : Implement error handling

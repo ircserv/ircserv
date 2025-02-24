@@ -17,6 +17,7 @@ void ChannelRepository::destroy()
 {
   if(instance != NULL)
   {
+    instance->channels.clear();
     delete instance;
   }
 }

@@ -9,6 +9,7 @@
 #include "../parser/Message.hpp"
 #include "../parser/Parser.hpp"
 #include "middleware/middleware.hpp"
+#include "commands/Response.hpp"
 
 class User;
 class Channel;
@@ -22,10 +23,13 @@ class IRCServer {
       static void destroy();
 
       std::string const &getCreatedTime() const;
-      void start(int port);
+      void setPort(int port);
+      void setIp(std::string ip);
+      void setPassword(std::string password);
+      void start();
       void on(const std::string event, IRCEventCallback callback);
-      void broadcast(const char* data);
-      void send(fd clientSocket, const char* data);
+      void broadcast(const std::string &data);
+      void send(fd clientSocket, const std::string &data);
       void disconnect(fd clientSocket);
       void disconnectAll();
       void enableWriteEvent(fd clientSocket);

@@ -21,6 +21,9 @@
 #define CMD_PRIVMSG "PRIVMSG"
 #define CMD_KICK "KICK"
 #define CMD_TOPIC "TOPIC"
+#define CMD_INVITE "INVITE"
+#define CMD_MODE "MODE"
+#define CMD_NAMES "NAMES"
 
 namespace IRCCommand{
   // cap
@@ -58,7 +61,9 @@ namespace IRCCommand{
   void kick(int clientSocket, void* message);
   void invite(int clientSocket, void* message);
   void topic(int clientSocket, void* message);
-  // void mode(int clientSocket, void* message);
+  void mode(int clientSocket, void* message);
+
+  void names(int clientSocket, void* message);
   
 }
 

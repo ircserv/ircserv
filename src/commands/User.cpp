@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/16 23:52:43 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/20 07:45:02 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/24 16:03:55 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ namespace IRCCommand {
   void user(fd clientSocket, void* message){
     Message *msg = static_cast<Message*>(message);
     std::vector<std::string> params = msg->getParams();
-    IRCServer &ircServer = IRCServer::getInstance();
+
     UserRepository &users = UserRepository::getInstance();
     User *user = users.getUser(clientSocket);
     
@@ -51,28 +51,10 @@ namespace IRCCommand {
     if(params.size() < 4){
       return user->send(ERR_NEEDMOREPARAMS(user->getNickname(), msg->getCommand()));
     }
-    std::string realname;
-
-    // TODO utils::join으로 분리
-    for(size_t i = 3; i < params.size(); i++){
-      realname += params[i];
-      if(i != params.size() - 1){
-        realname += " ";
-      }
-    }
 
     user->setUsername(params[0]);
     user->setHostname(params[1]);
     user->setServername(params[2]);
-    user->setRealname(realname);
-
-    if(!user->getNickname().empty() && !user->getUsername().empty()){
-      user->send(RPL_WELCOME(user->getNickname()));
-      user->send(RPL_YOURHOST(user->getNickname()));
-      user->send(RPL_CREATED(user->getNickname(), ircServer.getCreatedTime()));
-      user->send(RPL_MYINFO(user->getNickname()));
-      user->send(RPL_ISUPPORT(user->getNickname())); 
-      ircServer.enableWriteEvent(clientSocket);  
-    }
+    user->setRealname(params[3]);
   }
 }

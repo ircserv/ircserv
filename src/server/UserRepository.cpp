@@ -18,6 +18,7 @@ void UserRepository::destroy()
 {
   if(instance != NULL)
   {
+    instance->_users.clear();
     delete instance;
   }
 }

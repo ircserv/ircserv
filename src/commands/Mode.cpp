@@ -9,10 +9,12 @@ namespace IRCCommand {
     UserRepository &userRepo = UserRepository::getInstance();
     ChannelRepository &channelRepo = ChannelRepository::getInstance();
     User *user = userRepo.getUser(clientSocket);
+    std::string response = ":" + user->getNickname() + " MODE ";
 
     if (params.size() < 2) {
       return user->send(ERR_NEEDMOREPARAMS(user->getNickname(), "MODE"));
     }
+
     std::string target = params[0];
     std::string modes = params.size() > 1 ? params[1] : "";
     std::vector<std::string> keys = params.size() > 2 ? utils::split(params[2], ',') : std::vector<std::string>();
@@ -65,12 +67,14 @@ namespace IRCCommand {
       if (!initial) continue;
       if (*it == 't' || *it == 'i') {
         channel->setMode(*it, flag, NULL);
+        channel->broadcast(response + target + " " + (flag ? "+" : "-") + *it);
         continue ;
       } 
       
       if (*it == 'l' || *it == 'k') {
         if(!flag){
           channel->setMode(*it, flag, NULL);
+          channel->broadcast(response + target + " " + (flag ? "+" : "-") + *it);
           continue;
         }
         // set mode + 
@@ -81,22 +85,26 @@ namespace IRCCommand {
           user->send(ERR_INVALIDMODEPARAM(user->getNickname(), target, *it, keys[keyIdx]));
         } else {
           channel->setMode(*it, flag, &keys[keyIdx]);
+          channel->broadcast(response + target + " " + (flag ? "+" : "-") + *it + " " + keys[keyIdx]);
         }
         keyIdx++;
         continue ;
       }
       if (*it == 'o') {
-        if (keyIdx > keylen) {
+        if (keyIdx >= keylen) {
           continue ;
         }
+        std::cout << "keyIdx: " << keyIdx << ", keylen: " << keylen << std::endl;
         if (!channel->hasUser(keys[keyIdx])){
           user->send(ERR_USERNOTINCHANNEL(user->getNickname(), keys[keyIdx], target));
           continue ;
         }
         channel->setMode(*it, flag, &keys[keyIdx]);
+        channel->broadcast(response + target + " " + (flag ? "+" : "-") + *it + " " + keys[keyIdx]);
         keyIdx++;
       }
     }
+    
   } // mode function 
 }// namespace IRCCommand
 

@@ -41,6 +41,7 @@ class User {
     void part(Channel & channel);
     void send(std::string message);
     void kicked(Channel *channel);
+    void broadcast(std::string msg);
     void sendBufferFlush();
     std::vector<std::string> receive();
     
@@ -49,6 +50,8 @@ class User {
     void setRealname(std::string realname);
     void setHostname(const std::string hostname);
     void setServername(const std::string servername);
+
+    const std::string getFullName();
 
     std::vector<Channel *> getChannels();
     bool isJoined(std::string const &channel);

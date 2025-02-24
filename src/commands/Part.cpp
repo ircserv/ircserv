@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 03:30:01 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/21 00:08:33 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/24 12:30:30 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,9 @@ namespace IRCCommand {
       Channel *channel = channelRepo.getChannel(channelName);
       channel->broadcast(":" + nickname + " " + CMD_PART + " " + channelName + " " + reason);
       user->part(*channel);
+      if(channel->isEmpty()){
+        channelRepo.removeChannel(*channel);
+      }
     }
   }
 }

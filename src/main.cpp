@@ -3,18 +3,48 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minhulee <minhulee@student.42seoul.kr>     +#+  +:+       +#+        */
+/*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 07:32:10 by yechakim          #+#    #+#             */
-/*   Updated: 2025/02/21 18:56:09 by minhulee         ###   ########seoul.kr  */
+/*   Updated: 2025/02/24 16:08:11 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stdlib.h>
 #include "IRCServer.hpp"
 #include "commands/IRCCommand.hpp"
 
-int main(){
+int main(int argc, char *argv[]){
+
+  if(!(argc == 3 || argc == 4)) {
+    std::cerr << "Usage: " << argv[0] << "[<ip>] <server_port> <server_password>" << std::endl;
+    return 1;
+  }
+  int port;
+  std::string addr;
+  std::string password;
+  if(argc == 4){
+    addr = std::string(argv[1]);
+    if (!utils::isNumber(argv[2])) {
+      std::cerr << "Port must be a number" << std::endl;
+      return 1;
+    }
+    port = std::strtod(argv[2], NULL);
+    password = std::string(argv[3]);
+  } else {
+    if (!utils::isNumber(argv[1])) {
+      std::cerr << "Port must be a number" << std::endl;
+      return 1;
+    }
+    port = std::strtod(argv[1], NULL);
+    password = std::string(argv[2]);
+  }
+
+  
   IRCServer &server = IRCServer::getInstance();
+  server.setPort(port);
+  server.setPassword(password);
+
   server.on(CMD_CAP, IRCCommand::cap);
   server.on(CMD_JOIN, IRCCommand::join);
   server.on(CMD_PASS, IRCCommand::pass);
@@ -26,10 +56,16 @@ int main(){
   server.on(CMD_QUIT, IRCCommand::quit);
   server.on(CMD_PART, IRCCommand::part);
   server.on(CMD_MODE, IRCCommand::mode);
-
+  server.on(CMD_INVITE, IRCCommand::invite);
   server.on(CMD_TOPIC, IRCCommand::topic);
+  server.on(CMD_NAMES, IRCCommand::names);
+  
+  try {
+    server.start();
+  } catch (const std::exception &e) {
+    std::cerr << e.what() << std::endl;
+    return 1;
+  }
 
-  server.start(6667);
-  server.destroy();
   return 0;
 }

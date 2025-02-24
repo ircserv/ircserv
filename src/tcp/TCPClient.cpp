@@ -1,6 +1,7 @@
 #include "TCPClient.hpp"
 #include <iostream>
-
+#define RED "\033[31m"
+#define RESET "\033[0m"
 
 TCPClient::TCPClient()
 : socket(-1), connected(false), readBuffer(""), writeBuffer(""), delimiter("\r\n")
@@ -55,26 +56,25 @@ void TCPClient::send(const char* data){
 
 void TCPClient::sendBufferFlush()
 {
+  std::cout << RED "[LOG TO CLIENT] :" RESET << writeBuffer << std::endl;
   ssize_t bytesSent = ::send(socket, writeBuffer.c_str(), writeBuffer.length(), 0);
   if (bytesSent == -1) {
     connected = false;
     // TODO:  NEED To check
   }
-  std::cout << "[FLUSH]\n" << writeBuffer << "\n[FLUSH END]"<<std::endl;
+  // // std::cout << "[FLUSH]\n" << writeBuffer << "\n[FLUSH END]"<<std::endl;
   writeBuffer.clear();
 }
 
 std::string TCPClient::receive(){
   char data[BUFFER_SIZE];
+  memset(data, 0, BUFFER_SIZE);
   if (!readBuffer.empty() && findDelimiter() != std::string::npos){
     std::string message = readBuffer.substr(0, findDelimiter());
     readBuffer.erase(0, findDelimiter() + delimiter.length());
     return message;
   }
   ssize_t bytesReceived = recv(socket, data, BUFFER_SIZE, 0);
-  std::cout << "[RECEIVED DATA FROM " << socket << "]" << std::endl;
-  std::cout << data << std::endl;
-  std::cout << "[RECEIVED DATA END]" << std::endl;
   if (bytesReceived == -1) {
     connected = false;
     return "";

@@ -1,6 +1,7 @@
 #include "utils.hpp"
 
 
+
 namespace utils {
   std::vector<std::string> split(std::string const &str, char delim) {
     std::vector<std::string> result;
@@ -29,5 +30,9 @@ namespace utils {
       }
     }
     return true;
+  }
+  
+  bool keventCompare(const struct kevent & lhs, const struct kevent & rhs) {
+    return (lhs.ident == rhs.ident && lhs.filter == rhs.filter);
   }
 }

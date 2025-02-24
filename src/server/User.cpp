@@ -96,8 +96,15 @@ void User::send(std::string message)
   server.enableWriteEvent(client.getSocket());
 }
 
-void User::kicked(Channel * channel){
+void User::kicked(Channel * channel) {
   channels.erase(channel->getName());
+}
+
+void User::broadcast(std::string msg) {
+  std::vector<Channel *> channels = getChannels();
+  for(std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it){ 
+    (*it)->send(*this, msg);
+  }
 }
 
 void User::sendBufferFlush() {
@@ -131,8 +138,13 @@ void User::setUsername(std::string username)
 void User::setHostname(const std::string hostname){
   this->hostname = hostname;
 }
+
 void User::setServername(const std::string servername){
   this->servername = servername;
+}
+
+const std::string User::getFullName() {
+  return nickname + "!" + username + "@" + hostname;
 }
 void User::setRealname(std::string realname)
 {

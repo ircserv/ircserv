@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 14:50:04 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/20 14:11:13 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/24 15:01:22 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ namespace IRCCommand{
     UserRepository &userRepo = UserRepository::getInstance();
     User *user = userRepo.getUser(clientSocket);
     Message *msg = static_cast<Message*>(message);
-    std::cout << "[EVENT] NICK" << std::endl;
+    // // std::cout << "[EVENT] NICK" << std::endl;
     
     std::vector<std::string> params = msg->getParams();
     if (params.size() == 0) {
@@ -54,12 +54,14 @@ namespace IRCCommand{
     if(nickname == user->getNickname()) return ;
 
     if (userRepo.hasUser(nickname)) {
-      return user->send(ERR_NICKNAMEINUSE(user->getNickname(), nickname));
+      return user->send(ERR_NICKNAMEINUSE((user->getNickname().empty() ? nickname : user->getNickname()), nickname));
     }
     if (!(user->getNickname().empty())) {
-      user->send(":" + user->getNickname() + " " + msg->getCommand() + " " + nickname);
+      user->broadcast(":" + user->getNickname() + " " + msg->getCommand() + " " + nickname);
     }
     user->setNickname(nickname);
+    user->send(":" + user->getNickname() + " " + msg->getCommand() + " " + nickname);
+    
   }
 }
 

@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 02:10:09 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/21 05:57:02 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/24 12:34:29 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ namespace IRCCommand {
   void quit(int clientSocket, void* message) {
     Message *msg = static_cast<Message *>(message);
     UserRepository &userRepo = UserRepository::getInstance();
+    ChannelRepository &channelRepo = ChannelRepository::getInstance();
     User *user = userRepo.getUser(clientSocket);
     std::string responseMessage = "ERROR :Closing Connection";
     std::string broadcastMessage = "QUIT :Quit:";
@@ -41,6 +42,9 @@ namespace IRCCommand {
     for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it){
       (*it)->send(*user, ":" + user->getNickname() + " " + broadcastMessage);
       user->part(**it);
+      if((*it)->isEmpty()){
+        channelRepo.removeChannel(**it);
+      }
     }
     user->quit();
   }

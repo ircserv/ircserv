@@ -3,7 +3,7 @@
 
 
 Channel::Channel()
-: name(""), symbol("="), users(), chops(), key(""), capacity(0), topic(""), mode(0)
+: name(""), symbol("="), users(), chops(), key(""), capacity(256), topic(""), mode(0)
 {}
 
 
@@ -179,6 +179,10 @@ bool Channel::isKeyProtected()
   return mode & MODE_KEY;
 }
 
+bool Channel::isTopicMode() {
+  return mode & MODE_TOPIC;
+}
+
 bool Channel::isOperator(User & user) {
   return chops.find(&user) != chops.end();
 }
@@ -190,6 +194,11 @@ bool Channel::isLimit()
 
 bool Channel::isInvited(User & user){
   return invitedUsers.find(&user) != invitedUsers.end();
+}
+
+bool Channel::isEmpty()
+{
+  return users.size() == 0;
 }
 
 bool Channel::authenticate(std::string key)
@@ -210,10 +219,14 @@ void Channel::setMode(char mode, bool flag, void *key = NULL) {
     this->mode &= ~modemap[mode];
   }
   
-  if(mode == 'k') {
+  if(mode == 'k' && flag) {
     this->key = std::string(static_cast<char *>(key));
-  } else if (mode == 'l') {
-    this->capacity = std::stoi(static_cast<char *>(key));
+  } else if (mode == 'k') {
+    this->key = "";
+  } else if (mode == 'l' && flag) {
+      this->capacity = std::strtod(static_cast<char *>(key), NULL);
+  }else if (mode == 'l') {
+      this->capacity = 256;
   } else if (mode == 'o') {
     User *user = getUser(static_cast<char *>(key));
     if (!flag) chops.erase(user);

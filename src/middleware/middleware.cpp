@@ -15,19 +15,15 @@ bool Middleware::authentifications(int client, void *msg)
   UserRepository &userRepo = UserRepository::getInstance();
   User *user = userRepo.getUser(client);
 
-  std::cout << "[middleware] authentifications" << std::endl;
   if (excludedAuthentications.find(command) != excludedAuthentications.end()){
-    return false; // when command is not in excludedAuthentications ex) PASS
+    return false;
   }
-  std::cout << "[middleware] authentifications"  GREEN " ACTIVE " RESET << std::endl;
+
   if(!user->isauthentified()){
     std::string username = user->getNickname().empty() ? "unknown" : user->getNickname();
     user->send(ERR_PASSWDMISMATCH(username));
-    // user->send(ERR_NOTREGISTERED(username));
-    std::cout << "[middleware] authentifications"  RED " CATCH " RESET << std::endl;
     return true;
   } 
-  std::cout << "[middleware] authentifications" GRAY " PASS " RESET << std::endl;
   return false;
 }
 
@@ -39,19 +35,17 @@ bool Middleware::registrations(int client, void *msg)
   UserRepository &userRepo = UserRepository::getInstance();
   User *user = userRepo.getUser(client);
 
-  std::cout << "[middleware] registrations" << std::endl;
-
   if (excludedAuthentications.find(command) != excludedAuthentications.end()){
-    return false; // when command is not in excludedAuthentications ex) PASS / NICK / USER
+    return false;
   }
-  std::cout << "[middleware] registrations" GREEN " ACTIVE " RESET << std::endl;
+
   if(!user->isauthentified()){
     std::string username = user->getNickname().empty() ? "unknown" : user->getNickname();
     user->send(ERR_PASSWDMISMATCH(username));
-    std::cout << "[middleware] registrations" RED " CATCH " RESET << std::endl;
+    
     return true;
   }
-  std::cout << "[middleware] registrations" GRAY " PASS " RESET << std::endl;
+
   return false;
 }
 
@@ -61,14 +55,18 @@ bool Middleware::doWelcome(int client, void *msg) {
   Message *message = static_cast<Message *>(msg);
   std::string command = message->getCommand();
   IRCServer &server = IRCServer::getInstance();
-
+  std::cout << "doWelcome1" << std::endl;
   if (!(command == CMD_NICK || command == CMD_USER)) return false;
+  std::cout << "doWelcome2" << std::endl;
   if (user->isRegistered()) return false;
+  std::cout << "doWelcome3" << std::endl;
   if (!user->isauthentified()) return false;
+  std::cout << "doWelcome4" << std::endl;
+
   if (user->getRealname().empty() || user->getNickname().empty()) return false;
 
   std::string username = user->getNickname();
-
+  std::cout << "doWelcome" << std::endl;
   user->setRegistered(true);
   user->send(RPL_WELCOME(username));
   user->send(RPL_YOURHOST(username));

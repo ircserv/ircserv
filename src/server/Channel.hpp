@@ -61,6 +61,8 @@ class Channel {
     bool isOperator(User &user);
     bool isLimit();
     bool isInvited(User &user);
+    bool isEmpty();
+    bool isTopicMode();
 
     bool authenticate(std::string key);
     void setMode(char modes, bool flag, void *key);

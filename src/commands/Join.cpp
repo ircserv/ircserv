@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 02:58:39 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/21 18:44:56 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/24 14:28:50 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,11 +129,13 @@ namespace IRCCommand {
       userNames += (*it)->getNickname();
       userNames += *it == users.back() ? "" : " ";
     }
-    channel->broadcast(":" + user->getNickname() + " JOIN " + *channelName);
+    channel->broadcast(":" + user->getFullName() + " JOIN " + *channelName);
     if(!channel->getTopic().empty()) {
+      user->send(RPL_NOTOPIC(user->getNickname(), *channelName));
+    } else {
       user->send(RPL_TOPIC(user->getNickname(), *channelName, channel->getTopic()));
     }
-    user->send(RPL_NAMREPLY(user->getNickname(), channel->getSymbol(), *channelName, userNames));
+    user->send(RPL_NAMREPLY(user->getNickname(), "=", *channelName, userNames));
     user->send(RPL_ENDOFNAMES(user->getNickname(), *channelName));
     }
   }
@@ -143,8 +145,12 @@ bool validateChannelName(const std::string &channelName){
   if(channelName[0] != '#' && channelName[0] != '&'){
     return false;
   }
-  if(channelName.find_first_of(" ,\a") != std::string::npos){
+  if (channelName.find_first_of(" ,\a") != std::string::npos){
     return false;
   }
+  if (channelName.size() < 2) {
+    return false;
+  }
+  
   return true;
 }

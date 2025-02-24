@@ -27,6 +27,8 @@
 #define	ERR_TOOMANYCHANNELS(client, channel)						("405 " + client + " " + channel + " :You have joined too many channels")
 #define	ERR_NOORIGIN(client)														("409 " + client + " :No origin specified")
 
+#define ERR_UNKOWNCOMMAND(client, command)							("421 " + client + " " + command + " :Unknown command")
+
 #define	ERR_NONICKNAMEGIVEN(client)											("431 " + client + " :No nickname given")
 #define	ERR_ERRONEUSNICKNAME(client, nick)							("432 " + client + " " + nick + " :Erroneus nickname")
 #define	ERR_NICKNAMEINUSE(client, nick)									("433 " + client + " " + nick + " :Nickname is already in use")
