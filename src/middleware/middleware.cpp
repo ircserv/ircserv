@@ -55,18 +55,13 @@ bool Middleware::doWelcome(int client, void *msg) {
   Message *message = static_cast<Message *>(msg);
   std::string command = message->getCommand();
   IRCServer &server = IRCServer::getInstance();
-  std::cout << "doWelcome1" << std::endl;
   if (!(command == CMD_NICK || command == CMD_USER)) return false;
-  std::cout << "doWelcome2" << std::endl;
   if (user->isRegistered()) return false;
-  std::cout << "doWelcome3" << std::endl;
   if (!user->isauthentified()) return false;
-  std::cout << "doWelcome4" << std::endl;
 
   if (user->getRealname().empty() || user->getNickname().empty()) return false;
 
   std::string username = user->getNickname();
-  std::cout << "doWelcome" << std::endl;
   user->setRegistered(true);
   user->send(RPL_WELCOME(username));
   user->send(RPL_YOURHOST(username));

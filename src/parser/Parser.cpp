@@ -30,14 +30,14 @@ Message Parser::parseMessage(const std::string& rawMessage) const {
     parseParameters(raw, msg);
     std::vector<std::string> params = msg.getParams();
 
-    std::cout << "===== message ===== " << std::endl;
-    std::cout << "rawMessage: " << rawMessage << std::endl;
-    std::cout << "[command] " << msg.getCommand() << std::endl;
-    std::cout << "[params ] ";
-    for(size_t i = 0; i < params.size(); i++) {
-        std::cout << " [" << params[i] << "],";
-    }
-    std::cout << "===================" << std::endl;
+    // std::cout << "===== message ===== " << std::endl;
+    // std::cout << "rawMessage: " << rawMessage << std::endl;
+    // std::cout << "[command] " << msg.getCommand() << std::endl;
+    // std::cout << "[params ] ";
+    // for(size_t i = 0; i < params.size(); i++) {
+    //     std::cout << " [" << params[i] << "],";
+    // }
+    // std::cout << "===================" << std::endl;
 
 
     return msg;

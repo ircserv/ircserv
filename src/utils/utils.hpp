@@ -14,10 +14,7 @@ namespace utils {
 
   struct KeventCompare {
     bool operator()(const struct kevent& k1, const struct kevent& k2) const {
-      if (k1.ident != k2.ident)
-        return k1.ident < k2.ident;
-
-      return k1.filter < k2.filter;
+      return k1.ident < k2.ident;
     }
   };
 }

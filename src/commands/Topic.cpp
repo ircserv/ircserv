@@ -13,9 +13,6 @@ namespace IRCCommand {
 		User	*user = userRepo.getUser(clientSocket);
 		std::vector<std::string>	param = msg->getParams();
 		std::string	nick = user->getNickname(), cmd = msg->getCommand();
-		
-		std::cout << msg->getRawMessage() << std::endl;
-
 		// pram이 없는 경우
 		if (param.empty())
 			return user->send(ERR_NEEDMOREPARAMS(nick, cmd));

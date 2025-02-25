@@ -1,6 +1,9 @@
 #include "IRCServer.hpp"
 #include <iostream>
 
+#define RED "\033[31m"
+#define RESET "\033[0m"
+
 IRCServer *IRCServer::instance = NULL;
 
 IRCServer::IRCServer()
@@ -93,9 +96,11 @@ void IRCServer::send(fd clientSocket, const std::string &data)
 
 void IRCServer::disconnect(fd clientSocket)
 {
+
   UserRepository &users = UserRepository::getInstance();
   this->server.disconnectClient(clientSocket);
   users.removeUser(clientSocket);
+
 }
 
 void IRCServer::disconnectAll()
@@ -125,7 +130,17 @@ void IRCServer::acceptCallback(fd eventSocket)
 void IRCServer::disconnectCallback(fd eventSocket)
 {
   /// TODO : disconnect 사이클 정하기
-  (void)eventSocket;
+  UserRepository &users = UserRepository::getInstance();
+  IRCServer &irc = IRCServer::getInstance();
+  User *user = users.getUser(eventSocket);
+  if (!user) return ;
+  std::vector<Channel *> channels = user->getChannels();
+  for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it) {
+    (*it)->send(*user, ":" + user->getFullName() + " QUIT :QUIT: disconnected");
+    (*it)->part(*user);
+  }
+  irc.server.disconnectClient(eventSocket);
+  users.removeUser(eventSocket);
 }
 
 
@@ -134,6 +149,7 @@ void IRCServer::readCallback(fd eventSocket)
   IRCServer &irc = IRCServer::getInstance();
   UserRepository &userRepo = UserRepository::getInstance();
   User *user = userRepo.getUser(eventSocket);
+  if (!user) return;
   std::vector<std::string> messages = user->receive();
   Parser parser;
   for(std::vector<std::string>::iterator it = messages.begin(); it != messages.end(); ++it){
@@ -162,6 +178,10 @@ void IRCServer::writeCallback(fd eventSocket)
   IRCServer &irc = IRCServer::getInstance();
   UserRepository &userRepo = UserRepository::getInstance();
   User *user = userRepo.getUser(eventSocket);
+  if (!user) {
+    return ;
+  }
+  // std::cout << "[WRITE CALLBACK] : " << user << "sock: " << eventSocket << std::endl;
   user->sendBufferFlush();
   if(user->isQuit()){
     irc.disconnect(eventSocket);

@@ -56,7 +56,7 @@ void TCPClient::send(const char* data){
 
 void TCPClient::sendBufferFlush()
 {
-  std::cout << RED "[LOG TO CLIENT] :" RESET << writeBuffer << std::endl;
+  std::cout << "[SEND SOCK] :" << socket << std::endl;
   ssize_t bytesSent = ::send(socket, writeBuffer.c_str(), writeBuffer.length(), 0);
   if (bytesSent == -1) {
     connected = false;
@@ -74,7 +74,12 @@ std::string TCPClient::receive(){
     readBuffer.erase(0, findDelimiter() + delimiter.length());
     return message;
   }
+  std::cout << "[RECEIVE SOCK] : " << socket << std::endl;
   ssize_t bytesReceived = recv(socket, data, BUFFER_SIZE, 0);
+  if (bytesReceived == 0){
+    connected = false;
+    return "";
+  }
   if (bytesReceived == -1) {
     connected = false;
     return "";

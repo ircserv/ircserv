@@ -94,7 +94,6 @@ namespace IRCCommand {
         if (keyIdx >= keylen) {
           continue ;
         }
-        std::cout << "keyIdx: " << keyIdx << ", keylen: " << keylen << std::endl;
         if (!channel->hasUser(keys[keyIdx])){
           user->send(ERR_USERNOTINCHANNEL(user->getNickname(), keys[keyIdx], target));
           continue ;

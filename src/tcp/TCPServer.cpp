@@ -2,6 +2,57 @@
 #include <arpa/inet.h>
 #include <iostream>
 
+void handle_kevent_error(int error_code) {
+    std::cerr << "kevent 실패: ";
+    
+    switch (error_code) {
+        case EACCES:
+            std::cerr << "접근 권한이 없습니다." << std::endl;
+            break;
+            
+        case EFAULT:
+            std::cerr << "changelist 또는 eventlist가 접근 가능한 주소 공간 영역을 가리키지 않습니다." << std::endl;
+            break;
+            
+        case EBADF:
+            std::cerr << "kq 파일 디스크립터가 유효하지 않습니다." << std::endl;
+            break;
+            
+        case EINTR:
+            std::cerr << "kevent() 호출이 신호에 의해 중단되었습니다." << std::endl;
+            break;
+            
+        case EINVAL:
+            std::cerr << "지정된 시간 제한 또는 필터가 유효하지 않습니다." << std::endl;
+            break;
+            
+        case ENOENT:
+            std::cerr << "식별자가 존재하지 않습니다." << std::endl;
+            break;
+            
+        case ENOMEM:
+            std::cerr << "메모리 할당에 실패했습니다." << std::endl;
+            break;
+            
+        case ESRCH:
+            std::cerr << "프로세스가 존재하지 않습니다." << std::endl;
+            break;
+            
+        case EAGAIN:
+            std::cerr << "리소스 한도에 도달하였습니다." << std::endl;
+            break;
+
+        case ENOTSUP:
+            std::cerr << "이 시스템에서 지원되지 않는 작업입니다." << std::endl;
+            break;
+
+        default:
+            std::cerr << "알 수 없는 오류: " << strerror(error_code) << std::endl;
+            break;
+    }
+}
+
+
 TCPServer::TCPServer() : serverSocket(-1), kq(-1), running(false), port(0), ip("") {
   clients = std::map<fd, TCPClient *>();
   eventlists = new struct kevent[MAX_EVENTS];
@@ -74,19 +125,18 @@ void TCPServer::eventLoop() {
       int newClient = connectClient();
       acceptCallback(newClient);
       // // std::cout << "New client connected" << std::endl;
-      return ;
-    } else if (flags & EV_EOF) {  // ^D
-      disconnectClient(fd);
+      continue ;
+    }
+
+    if (flags & EV_EOF) {  // ^D
       disconnectCallback(fd);
-      return ;
+      continue ;
     }
     handleEventFilter(filter, fd);
   }
   std::vector<struct kevent> writeEventsVector(writeEvents.begin(), writeEvents.end());
-  for (std::vector<struct kevent>::iterator it = writeEventsVector.begin(); it != writeEventsVector.end(); ++it){
-    // std::cout << "Write event for " << it->ident << std::endl;
-  }
-  if(kevent(kq, writeEventsVector.data(), writeEventsVector.size(), NULL, 0, NULL) == -1) {
+  if (kevent(kq, writeEventsVector.data(), writeEventsVector.size(), NULL, 0, NULL) == -1) {
+    handle_kevent_error(errno);
     throw std::runtime_error("Failed to write events");
   }
   writeEvents.clear();
@@ -154,12 +204,16 @@ fd TCPServer::connectClient() {
 }
 
 void TCPServer::disconnectClient(fd clientSocket) {
-  unregisterEvent(clientSocket, EVFILT_READ);
+  // unregisterEvent(clientSocket, EVFILT_READ | EVFILT_WRITE);
+  struct kevent event;
+  EV_SET(&event, clientSocket, EVFILT_WRITE, 0, 0, 0, NULL);
+  writeEvents.erase(event);
+  std::cout << "[DISCONNECT] : " << clientSocket << std::endl;
   close(clientSocket);
 }
 
-void TCPServer::enableWriteEvent(fd clientSocket) {
-  registerEvent(clientSocket, EVFILT_WRITE, EV_ADD | EV_ONESHOT);
+void TCPServer::enableWriteEvent(fd cientSocket) {
+  registerEvent(cientSocket, EVFILT_WRITE, EV_ADD | EV_ONESHOT);
 }
 
 void TCPServer::setAcceptCallback(EventCallback callback) {
