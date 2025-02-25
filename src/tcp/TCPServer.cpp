@@ -128,7 +128,7 @@ void TCPServer::eventLoop() {
       continue ;
     }
 
-    if (flags & EV_EOF) {  // ^D
+    if (flags & EV_EOF || flags & EV_ERROR) {  // ^D
       disconnectCallback(fd);
       continue ;
     }
