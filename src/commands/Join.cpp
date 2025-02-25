@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 02:58:39 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/24 14:28:50 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/25 13:18:55 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,15 @@ namespace IRCCommand {
     std::vector<std::string> channelNames = utils::split(params[0], ',');
     std::vector<std::string> keys = params.size() > 1 ? utils::split(params[1], ',') : std::vector<std::string>();
     
+    if (channelNames.size() == 1 && channelNames.front() == "0") {
+      std::vector<Channel *> channels = user->getChannels();
+      for(std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it) {
+        (*it)->broadcast(":" + user->getFullName() + " PART " + (*it)->getName());
+        user->part(*(*it));
+      }
+      return ;
+    }
+
     size_t j = 0;
     for (std::vector<std::string>::iterator channelName = channelNames.begin();
       channelName != channelNames.end(); ++channelName) {
@@ -130,10 +139,10 @@ namespace IRCCommand {
       userNames += *it == users.back() ? "" : " ";
     }
     channel->broadcast(":" + user->getFullName() + " JOIN " + *channelName);
-    if(!channel->getTopic().empty()) {
-      user->send(RPL_NOTOPIC(user->getNickname(), *channelName));
-    } else {
+    if(channel->getTopic().empty()) {
       user->send(RPL_TOPIC(user->getNickname(), *channelName, channel->getTopic()));
+    } else {
+      user->send(RPL_NOTOPIC(user->getNickname(), *channelName));
     }
     user->send(RPL_NAMREPLY(user->getNickname(), "=", *channelName, userNames));
     user->send(RPL_ENDOFNAMES(user->getNickname(), *channelName));
