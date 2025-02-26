@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 02:58:39 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/25 13:18:55 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/26 17:12:03 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,9 +88,12 @@ namespace IRCCommand {
     
     if (channelNames.size() == 1 && channelNames.front() == "0") {
       std::vector<Channel *> channels = user->getChannels();
-      for(std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it) {
+      for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it) {
         (*it)->broadcast(":" + user->getFullName() + " PART " + (*it)->getName());
-        user->part(*(*it));
+        user->part(**it);
+        if ((*it)->isEmpty()) {
+          channelRepo.removeChannel(**it);
+        }
       }
       return ;
     }
@@ -154,12 +157,14 @@ bool validateChannelName(const std::string &channelName){
   if(channelName[0] != '#' && channelName[0] != '&'){
     return false;
   }
-  if (channelName.find_first_of(" ,\a") != std::string::npos){
+
+  std::string name = channelName.substr(1);
+  if (name.empty()) {
     return false;
   }
-  if (channelName.size() < 2) {
+  if (name.find_first_of(" ,\a") != std::string::npos) {
     return false;
   }
-  
+
   return true;
 }

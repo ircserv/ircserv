@@ -1,16 +1,16 @@
 #include "TCPClient.hpp"
-#include <iostream>
 #define RED "\033[31m"
 #define RESET "\033[0m"
+#include <iostream>
+
 
 TCPClient::TCPClient()
-: socket(-1), connected(false), readBuffer(""), writeBuffer(""), delimiter("\r\n")
+: socket(-1), readBuffer(""), writeBuffer(""), delimiter("\r\n")
 {
 }
 
 TCPClient::TCPClient(int socket) 
 : socket(socket),
-  connected(true),
   readBuffer(""),
   writeBuffer(""),
   delimiter("\r\n")
@@ -20,7 +20,6 @@ TCPClient::~TCPClient(){}
 
 TCPClient::TCPClient(const TCPClient& other) 
 : socket(other.socket),
-connected(other.connected), 
 readBuffer(other.readBuffer),
 writeBuffer(other.writeBuffer),
 delimiter(other.delimiter) {
@@ -29,7 +28,6 @@ delimiter(other.delimiter) {
 TCPClient& TCPClient::operator=(const TCPClient& other){
   if(this != &other){
     socket = other.socket;
-    connected = other.connected;
     readBuffer = other.readBuffer;
     writeBuffer = other.writeBuffer;
     delimiter = other.delimiter;
@@ -54,16 +52,18 @@ void TCPClient::send(const char* data){
   writeBuffer.append(delimiter);
 }
 
-void TCPClient::sendBufferFlush()
+bool TCPClient::sendBufferFlush()
 {
-  std::cout << "[SEND SOCK] :" << socket << std::endl;
-  ssize_t bytesSent = ::send(socket, writeBuffer.c_str(), writeBuffer.length(), 0);
-  if (bytesSent == -1) {
-    connected = false;
-    // TODO:  NEED To check
+
+  ssize_t bytesSent = ::send(socket, writeBuffer.c_str(), writeBuffer.length(), MSG_NOSIGNAL);
+  if (bytesSent < 0) {
+    throw std::runtime_error("broken pipe: ");
   }
-  // // std::cout << "[FLUSH]\n" << writeBuffer << "\n[FLUSH END]"<<std::endl;
-  writeBuffer.clear();
+  writeBuffer = writeBuffer.substr(bytesSent);
+  if (writeBuffer.empty()) {
+    return true;
+  }
+  return false;
 }
 
 std::string TCPClient::receive(){
@@ -74,20 +74,14 @@ std::string TCPClient::receive(){
     readBuffer.erase(0, findDelimiter() + delimiter.length());
     return message;
   }
-  std::cout << "[RECEIVE SOCK] : " << socket << std::endl;
-  ssize_t bytesReceived = recv(socket, data, BUFFER_SIZE, 0);
-  if (bytesReceived == 0){
-    connected = false;
-    return "";
-  }
+  ssize_t bytesReceived = recv(socket, data, BUFFER_SIZE, MSG_NOSIGNAL);
   if (bytesReceived == -1) {
-    connected = false;
     return "";
   }
   appendToBuffer(data, bytesReceived);
   memset(data, 0, BUFFER_SIZE);
   std::string::size_type delimiterPos = findDelimiter();
-  if(delimiterPos == std::string::npos){
+  if (delimiterPos == std::string::npos) {
     return "";
   }
   std::string message = readBuffer.substr(0, delimiterPos);

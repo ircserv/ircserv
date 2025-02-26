@@ -43,7 +43,6 @@ class Channel {
     void part(User &user);
     void send(User &user, std::string message);
     void kick(User &user);
-    void makeOperator(std::string const &nickname);
     void broadcast(std::string message);
     void toOperators(User &sender, std::string const &message);
 
@@ -66,9 +65,10 @@ class Channel {
 
     bool authenticate(std::string key);
     void setMode(char modes, bool flag, void *key);
-  	void setTopic(const std::string &topc);
+    void setTopic(const std::string &topc);
     void invite(User &user);
-
+    void uninvite(User &user);
+    std::set<User *> getInvitedUsers();
 };
 
 

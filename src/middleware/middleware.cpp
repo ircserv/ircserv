@@ -42,7 +42,12 @@ bool Middleware::registrations(int client, void *msg)
   if(!user->isauthentified()){
     std::string username = user->getNickname().empty() ? "unknown" : user->getNickname();
     user->send(ERR_PASSWDMISMATCH(username));
-    
+    return true;
+  }
+
+  if (!user->isRegistered()){
+    std::string username = user->getNickname().empty() ? "unknown" : user->getNickname();
+    user->send(ERR_NOTREGISTERED(username));
     return true;
   }
 

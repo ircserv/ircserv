@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 02:10:09 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/24 12:34:29 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/26 16:09:32 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,13 @@ namespace IRCCommand {
       user->part(**it);
       if((*it)->isEmpty()){
         channelRepo.removeChannel(**it);
+      }
+    }
+    std::set<std::string> invitedChannels = user->getInvitedChannels();
+    for(std::set<std::string>::iterator it = invitedChannels.begin(); it != invitedChannels.end(); ++it){
+      Channel *channel = channelRepo.getChannel(*it);
+      if(channel){
+        channel->uninvite(*user);
       }
     }
     user->quit();

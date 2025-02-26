@@ -110,7 +110,7 @@ namespace IRCCommand {
 
 bool validkey(char mode, std::string key){
   if (mode == 'l') {
-    return utils::isNumber(key) && std::stoi(key) > 0;
+    return utils::isNumber(key) && std::strtod(key.c_str(), NULL) > 0;
   } 
   return (key.find_first_of("\0\r\n\a:,#&") == std::string::npos);
 }

@@ -42,7 +42,6 @@ class TCPServer {
     void initializeKqueue();
     void registerEvent(fd fd, int filter, int flags);
     void setNonBlocking(fd socket);
-    void unregisterEvent(fd fd, int filter);
     fd connectClient();
     void handleEventFilter(int filter, int fd);
 
@@ -57,7 +56,6 @@ class TCPServer {
     void setDisconnectCallback(EventCallback callback);
     void setReadCallback(EventCallback callback);
     void setWriteCallback(EventCallback callback);
-    void setErrorCallback(EventCallback callback);
     void eventLoop();
     void disconnectClient(fd clientSocket);
     void enableWriteEvent(fd clientSocket);

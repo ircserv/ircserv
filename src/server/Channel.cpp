@@ -51,14 +51,13 @@ Channel & Channel::operator=(const Channel & other)
 void Channel::join(User & user)
 {
   users[user.getSocket()] = &user;
+  invitedUsers.erase(&user);
 }
 
 void Channel::part(User & user)
 {
   users.erase(user.getSocket());
-  if(chops.find(&user) != chops.end()){
-    chops.erase(&user);
-  }
+  chops.erase(&user);
 }
 
 void Channel::send(User & user, std::string message)
@@ -234,11 +233,19 @@ void Channel::setMode(char mode, bool flag, void *key = NULL) {
   }
 }
 
-void	Channel::setTopic(const std::string &topc)
-{
+void	Channel::setTopic(const std::string &topc) {
 	topic = topc;
 }
 
 void Channel::invite(User & user) {
   invitedUsers.insert(&user);
+}
+
+void Channel::uninvite(User & user){
+  invitedUsers.erase(&user);
+}
+
+std::set<User*> Channel::getInvitedUsers()
+{
+  return invitedUsers;
 }

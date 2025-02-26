@@ -6,7 +6,6 @@
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
-#include <iostream>
 
 namespace utils {
   std::vector<std::string> split(const std::string &str, char delim);

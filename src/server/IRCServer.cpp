@@ -68,7 +68,6 @@ void IRCServer::start()
   server.setDisconnectCallback(disconnectCallback);
   server.setReadCallback(readCallback);
   server.setWriteCallback(writeCallback);
-  server.setErrorCallback(errorCallback);
   server.start();
 }
 
@@ -98,19 +97,18 @@ void IRCServer::disconnect(fd clientSocket)
 {
 
   UserRepository &users = UserRepository::getInstance();
+  ChannelRepository &channelRepo = ChannelRepository::getInstance();
   this->server.disconnectClient(clientSocket);
+  User *user = users.getUser(clientSocket);
+  std::set<std::string> invitedChannels = user->getInvitedChannels();
+  for (std::set<std::string>::iterator it = invitedChannels.begin(); it != invitedChannels.end(); ++it){
+    Channel *channel = channelRepo.getChannel(*it);
+    if (channel) {
+      channel->uninvite(*user);
+    }
+  }
   users.removeUser(clientSocket);
 
-}
-
-void IRCServer::disconnectAll()
-{
-  UserRepository &userRepo = UserRepository::getInstance();
-  std::map<int, User> &users = userRepo.getUsers();
-  for(std::map<fd, User>::iterator it = users.begin(); it != users.end(); ++it)
-  {
-    this->disconnect(it->first);
-  }
 }
 
 void IRCServer::enableWriteEvent(fd clientSocket) {
@@ -129,18 +127,20 @@ void IRCServer::acceptCallback(fd eventSocket)
 
 void IRCServer::disconnectCallback(fd eventSocket)
 {
-  /// TODO : disconnect 사이클 정하기
   UserRepository &users = UserRepository::getInstance();
   IRCServer &irc = IRCServer::getInstance();
   User *user = users.getUser(eventSocket);
   if (!user) return ;
+
   std::vector<Channel *> channels = user->getChannels();
   for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it) {
     (*it)->send(*user, ":" + user->getFullName() + " QUIT :QUIT: disconnected");
-    (*it)->part(*user);
+    user->part(**it);
+    if ((*it)->isEmpty()) {
+      ChannelRepository::getInstance().removeChannel(**it);
+    }
   }
-  irc.server.disconnectClient(eventSocket);
-  users.removeUser(eventSocket);
+  irc.disconnect(eventSocket);
 }
 
 
@@ -150,7 +150,21 @@ void IRCServer::readCallback(fd eventSocket)
   UserRepository &userRepo = UserRepository::getInstance();
   User *user = userRepo.getUser(eventSocket);
   if (!user) return;
-  std::vector<std::string> messages = user->receive();
+  std::vector<std::string> messages;
+  try {
+    messages = user->receive();
+  } catch (std::exception &e) {
+    std::vector<Channel *> channels = user->getChannels();
+    for(std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it){
+      (*it)->send(*user, ":" + user->getFullName() + " QUIT :Quit: disconnected");
+      user->part(**it);
+      if ((*it)->isEmpty()) {
+        ChannelRepository::getInstance().removeChannel(**it);
+      }
+    }
+    irc.disconnect(eventSocket);
+    return ;
+  }
   Parser parser;
   for(std::vector<std::string>::iterator it = messages.begin(); it != messages.end(); ++it){
       std::string msg = *it;
@@ -178,23 +192,28 @@ void IRCServer::writeCallback(fd eventSocket)
   IRCServer &irc = IRCServer::getInstance();
   UserRepository &userRepo = UserRepository::getInstance();
   User *user = userRepo.getUser(eventSocket);
-  if (!user) {
+  ChannelRepository &channelRepo = ChannelRepository::getInstance();
+  if (!user) return ;
+
+  try {
+    if (!user->sendBufferFlush()) {
+      irc.enableWriteEvent(eventSocket);
+      return ;
+    }
+  } catch (std::exception &e) {
+    std::vector<Channel *> channels = user->getChannels();
+    for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it) {
+      (*it)->send(*user, ":" + user->getFullName() + " QUIT :Quit: disconnected");
+      user->part(**it);
+      if ((*it)->isEmpty()) {
+        channelRepo.removeChannel(**it);
+      }
+    }
+    irc.disconnect(eventSocket);
     return ;
   }
-  // std::cout << "[WRITE CALLBACK] : " << user << "sock: " << eventSocket << std::endl;
-  user->sendBufferFlush();
-  if(user->isQuit()){
+    
+  if (user->isQuit()) {
     irc.disconnect(eventSocket);
   }
 }
-
-void IRCServer::errorCallback(fd eventSocket)
-{
-  IRCServer &irc = IRCServer::getInstance();
-  // // std::cout << "Error on socket " << eventSocket << std::endl;
-
-  irc.disconnect(eventSocket);
-  //TODO : Implement error handling
-}
-
-

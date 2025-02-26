@@ -35,6 +35,10 @@ void ChannelRepository::removeChannel(Channel & channel)
   if(!hasChannel(channel.getName())) {
     throw std::invalid_argument("Channel does not exist");
   }
+  std::set<User *> invitedUsers= channel.getInvitedUsers();
+  for(std::set<User *>::iterator it = invitedUsers.begin(); it != invitedUsers.end(); ++it){
+    (*it)->unInvited(channel.getName());
+  }
   channels.erase(channel.getName());
 }
 

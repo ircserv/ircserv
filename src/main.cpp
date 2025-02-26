@@ -6,13 +6,14 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 07:32:10 by yechakim          #+#    #+#             */
-/*   Updated: 2025/02/24 16:08:11 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/26 15:13:48 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
 #include "IRCServer.hpp"
 #include "commands/IRCCommand.hpp"
+#include <iostream>
 
 int main(int argc, char *argv[]){
 
@@ -29,19 +30,22 @@ int main(int argc, char *argv[]){
       std::cerr << "Port must be a number" << std::endl;
       return 1;
     }
-    port = std::strtod(argv[2], NULL);
+    port = static_cast<int>(std::strtod(argv[2], NULL));
     password = std::string(argv[3]);
   } else {
     if (!utils::isNumber(argv[1])) {
       std::cerr << "Port must be a number" << std::endl;
       return 1;
     }
-    port = std::strtod(argv[1], NULL);
+    port = static_cast<int>(std::strtod(argv[1], NULL));
     password = std::string(argv[2]);
   }
 
   
   IRCServer &server = IRCServer::getInstance();
+  if(argc == 4) {
+    server.setIp(addr);
+  }
   server.setPort(port);
   server.setPassword(password);
 

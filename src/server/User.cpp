@@ -77,9 +77,12 @@ std::string User::getRealname() const
   return realname;
 }
 
+
+
 void User::join(Channel & channel)
 {
   channel.join(*this);
+  invitedChannels.erase(channel.getName());
   channels[channel.getName()] = &channel;
 }
 
@@ -107,19 +110,19 @@ void User::broadcast(std::string msg) {
   }
 }
 
-void User::sendBufferFlush() {
-  client.sendBufferFlush();
+bool User::sendBufferFlush() {
+  return client.sendBufferFlush();
 }
 
 std::vector<std::string> User::receive()
 {
   std::vector<std::string> messages;
   while(true){
-    std::string message = client.receive();
-    if(message.empty()){
-      break;
-    }
-    messages.push_back(message);
+      std::string message = client.receive();
+      if (message.empty()) {
+        break;
+      }
+      messages.push_back(message);
   }
   return messages;
 }
@@ -193,4 +196,17 @@ void User::quit() {
 
 bool User::isQuit() {
   return quitFlag;
+}
+
+void User::invited(std::string channelName){
+  invitedChannels.insert(channelName);
+}
+
+void User::unInvited(std::string channelName)
+{
+  invitedChannels.erase(channelName);
+}
+
+std::set<std::string> User::getInvitedChannels(){
+  return invitedChannels;
 }

@@ -31,7 +31,6 @@ class IRCServer {
       void broadcast(const std::string &data);
       void send(fd clientSocket, const std::string &data);
       void disconnect(fd clientSocket);
-      void disconnectAll();
       void enableWriteEvent(fd clientSocket);
 
       bool authenticate(std::string password);
@@ -54,7 +53,6 @@ class IRCServer {
     static void disconnectCallback(fd eventSocket);
     static void readCallback(fd eventSocket);
     static void writeCallback(fd eventSocket);
-    static void errorCallback(fd eventSocket);
 
 };
 

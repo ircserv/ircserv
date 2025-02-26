@@ -6,12 +6,12 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 07:27:35 by yechakim          #+#    #+#             */
-/*   Updated: 2025/02/24 11:57:13 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/26 15:11:25 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "IRCCommand.hpp"
-#include <iostream>
+
 /**
  * CAP Comamand
  * 
@@ -27,7 +27,6 @@ namespace IRCCommand {
     UserRepository &users = UserRepository::getInstance();
     User *user = users.getUser(clientSocket);
 
-    // // std::cout << "[EVENT] CAP" << params.size() << std::endl;
     if (params.size() >=2 && params[0] == "LS"){
       user->send("CAP * LS :");
       ircServer.enableWriteEvent(clientSocket);

@@ -16,14 +16,13 @@ class TCPClient {
       TCPClient& operator=(const TCPClient& other);
 
       void send(const char* data);
-      void sendBufferFlush();
+      bool sendBufferFlush();
       std::string receive();
       int getSocket() const;
 
     private:
       static const int BUFFER_SIZE = 1024;
       int socket;
-      bool connected;
       std::string readBuffer;
       std::string writeBuffer;
       std::string delimiter;

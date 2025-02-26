@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 00:19:56 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/21 19:25:39 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/26 16:20:06 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ namespace IRCCommand {
     if (channel->hasUser(*target)){
       return user->send(ERR_USERONCHANNEL(user->getNickname(), target->getNickname(), channel->getName()));
     }
-
+    user->invited(channel->getName());
     user->send(RPL_INVITING(user->getNickname(), target->getNickname(), channel->getName()));
     target->send(":" + user->getNickname() + " INVITE " + target->getNickname() + " " + channel->getName());
     channel->invite(*target);

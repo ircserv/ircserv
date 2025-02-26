@@ -6,7 +6,7 @@
 /*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 14:50:04 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/24 15:01:22 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/26 16:36:00 by yechakim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ namespace IRCCommand{
     UserRepository &userRepo = UserRepository::getInstance();
     User *user = userRepo.getUser(clientSocket);
     Message *msg = static_cast<Message*>(message);
-    // // std::cout << "[EVENT] NICK" << std::endl;
     
     std::vector<std::string> params = msg->getParams();
     if (params.size() == 0) {
@@ -59,8 +58,8 @@ namespace IRCCommand{
     if (!(user->getNickname().empty())) {
       user->broadcast(":" + user->getNickname() + " " + msg->getCommand() + " " + nickname);
     }
+    user->send(":" + user->getFullName() + " " + msg->getCommand() + " " + nickname);
     user->setNickname(nickname);
-    user->send(":" + user->getNickname() + " " + msg->getCommand() + " " + nickname);
     
   }
 }

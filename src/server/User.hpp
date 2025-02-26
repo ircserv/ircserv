@@ -5,7 +5,6 @@
 #include <map>
 #include <vector>
 #include "Channel.hpp"
-#include <iostream>
 #include "../tcp/TCPClient.hpp"
 #include "./IRCServer.hpp"
 
@@ -19,6 +18,7 @@ class User {
     std::string hostname;
     std::string servername;
     std::string realname;
+    std::set<std::string> invitedChannels;
     bool authenticated;
     std::map<std::string, Channel *> channels;
     bool registered;
@@ -42,7 +42,7 @@ class User {
     void send(std::string message);
     void kicked(Channel *channel);
     void broadcast(std::string msg);
-    void sendBufferFlush();
+    bool sendBufferFlush();
     std::vector<std::string> receive();
     
     void setNickname(std::string nickname);
@@ -62,6 +62,10 @@ class User {
     bool isRegistered(); // pass NICK and USER command
     void quit();
     bool isQuit();
+    
+    void invited(std::string channelName);
+    void unInvited(std::string channelName);
+    std::set<std::string> getInvitedChannels();
 };  
 
 
