@@ -24,12 +24,11 @@ class TCPServer {
     int serverSocket;
     int kq;
     bool running;
-    struct kevent* eventlists;
+    struct kevent eventlists[MAX_EVENTS];
     int port;
     std::string ip;
     std::set<struct kevent, utils::KeventCompare> writeEvents;
     
-    std::map<fd, TCPClient*> clients;
     EventCallback acceptCallback;
     EventCallback disconnectCallback;
     EventCallback writeCallback;
@@ -50,6 +49,7 @@ class TCPServer {
     ~TCPServer();
 
     void start();
+	void stop();
     void setPort(int port);
     void setIp(std::string ip);
     void setAcceptCallback(EventCallback callback);

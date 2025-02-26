@@ -11,8 +11,7 @@ class UserRepository {
     static UserRepository &getInstance();
     static void destroy();
 
-    void addUser(User user);
-    void removeUser(User & user);
+    void addUser(int socket);
     void removeUser(int socket);
     User *getUser(std::string nickname);
     User *getUser(int clientSocket);

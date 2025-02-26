@@ -18,20 +18,18 @@ void UserRepository::destroy()
 {
   if(instance != NULL)
   {
-    instance->_users.clear();
+	for (std::map<int, User>::iterator it = instance->_users.begin(); it != instance->_users.end(); ++it) {
+		close(it->first);
+	}
     delete instance;
   }
 }
 
-void UserRepository::addUser(User user)
+void UserRepository::addUser(int clientSocket)
 {
-  _users[user.getSocket()] = User(user);
+  _users[clientSocket] = User(clientSocket);
 }
 
-void UserRepository::removeUser(User & user)
-{
-  _users.erase(user.getSocket());
-}
 void UserRepository::removeUser(int clientSocket)
 {
   _users.erase(clientSocket);

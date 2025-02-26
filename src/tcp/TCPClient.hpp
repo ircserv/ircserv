@@ -26,6 +26,7 @@ class TCPClient {
       std::string readBuffer;
       std::string writeBuffer;
       std::string delimiter;
+
       std::string::size_type findDelimiter() const;
       void appendToBuffer(const char* data, size_t length);
       void clearReadBuffer();

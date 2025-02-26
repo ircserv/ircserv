@@ -1,5 +1,4 @@
 #include "middleware.hpp"
-
 #include "../commands/IRCCommand.hpp"
 
 #define GREEN "\033[32m"
@@ -61,6 +60,7 @@ bool Middleware::doWelcome(int client, void *msg) {
   std::string command = message->getCommand();
   IRCServer &server = IRCServer::getInstance();
   if (!(command == CMD_NICK || command == CMD_USER)) return false;
+  
   if (user->isRegistered()) return false;
   if (!user->isauthentified()) return false;
 
@@ -76,8 +76,6 @@ bool Middleware::doWelcome(int client, void *msg) {
   
   return true;
 }
-
-
 
 std::set<std::string> Middleware::getExcludedAuthentications()
 {

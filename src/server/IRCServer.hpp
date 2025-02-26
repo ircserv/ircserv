@@ -27,6 +27,7 @@ class IRCServer {
       void setIp(std::string ip);
       void setPassword(std::string password);
       void start();
+	  void stop();
       void on(const std::string event, IRCEventCallback callback);
       void broadcast(const std::string &data);
       void send(fd clientSocket, const std::string &data);

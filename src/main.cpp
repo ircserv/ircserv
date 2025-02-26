@@ -3,20 +3,39 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
+/*   By: minhulee <minhulee@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 07:32:10 by yechakim          #+#    #+#             */
-/*   Updated: 2025/02/26 15:13:48 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/26 21:14:12 by minhulee         ###   ########seoul.kr  */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <csignal>
 #include <stdlib.h>
 #include "IRCServer.hpp"
 #include "commands/IRCCommand.hpp"
+#include "server/ChannelRepository.hpp"
+#include "server/IRCServer.hpp"
 #include <iostream>
+#include <string>
+
+void signalhandler(int){
+	IRCServer::getInstance().stop();
+	IRCServer::destroy();
+	UserRepository::destroy();
+	ChannelRepository::destroy();
+	//std::string cmd = "lsof -p" + std::to_string(getpid());
+	//system(cmd.c_str());
+}
+
+//void check()
+//{
+//	system("leaks ircserv");
+//}
 
 int main(int argc, char *argv[]){
-
+//  atexit(check);
+  signal(SIGINT, signalhandler);
   if(!(argc == 3 || argc == 4)) {
     std::cerr << "Usage: " << argv[0] << "[<ip>] <server_port> <server_password>" << std::endl;
     return 1;

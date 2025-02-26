@@ -1,16 +1,18 @@
 #include "TCPServer.hpp"
 #include <arpa/inet.h>
 #include <iostream>
+#include <sys/socket.h>
 
-TCPServer::TCPServer() : serverSocket(-1), kq(-1), running(false), port(0), ip("") {
-  clients = std::map<fd, TCPClient *>();
-  eventlists = new struct kevent[MAX_EVENTS];
-  writeEvents = std::set<struct kevent, utils::KeventCompare>();
-}
+TCPServer::TCPServer()
+: serverSocket(-1),
+  kq(-1),
+  running(false),
+  eventlists(),
+  port(0),
+  ip(""),
+  writeEvents() {}
 
 TCPServer::~TCPServer() {
-  delete[] eventlists;
-
   if (serverSocket != -1) {
     close(serverSocket);
   }
@@ -54,6 +56,10 @@ void TCPServer::start() {
   }
 }
 
+void TCPServer::stop(){
+	running = false;
+}
+
 void TCPServer::setPort(int port) {
   this->port = port;
 }
@@ -80,11 +86,12 @@ void TCPServer::eventLoop() {
       }
       continue ;
     }
-    if (fd == serverSocket && flags & (EV_ERROR | EV_EOF)) {
+
+    if (fd == serverSocket && flags & (EV_EOF | EV_ERROR)) {
       throw std::runtime_error("Server socket error");
     }
 
-    if (flags & EV_EOF || flags & EV_ERROR) {
+    if (flags & (EV_EOF | EV_ERROR)) {
       disconnectCallback(fd);
       continue ;
     }
@@ -137,6 +144,8 @@ fd TCPServer::connectClient() {
   if (clientSocket == -1) {
     throw std::runtime_error("Failed to accept connection");
   }
+  int opt = 1;
+  setsockopt(serverSocket, SOL_SOCKET, SO_NOSIGPIPE, &opt, sizeof(opt));
   setNonBlocking(clientSocket);
   struct kevent event;
   EV_SET(&event, clientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);

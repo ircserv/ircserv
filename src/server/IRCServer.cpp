@@ -23,6 +23,9 @@ IRCServer::IRCServer()
 
 IRCServer::~IRCServer(){}
 
+void IRCServer::stop(){
+	server.stop();
+}
 
 
 IRCServer &IRCServer::getInstance()
@@ -98,7 +101,6 @@ void IRCServer::disconnect(fd clientSocket)
 
   UserRepository &users = UserRepository::getInstance();
   ChannelRepository &channelRepo = ChannelRepository::getInstance();
-  this->server.disconnectClient(clientSocket);
   User *user = users.getUser(clientSocket);
   std::set<std::string> invitedChannels = user->getInvitedChannels();
   for (std::set<std::string>::iterator it = invitedChannels.begin(); it != invitedChannels.end(); ++it){
@@ -108,7 +110,7 @@ void IRCServer::disconnect(fd clientSocket)
     }
   }
   users.removeUser(clientSocket);
-
+  this->server.disconnectClient(clientSocket);
 }
 
 void IRCServer::enableWriteEvent(fd clientSocket) {
@@ -122,7 +124,7 @@ bool IRCServer::authenticate(std::string challenge){
 void IRCServer::acceptCallback(fd eventSocket)
 {
   UserRepository &users = UserRepository::getInstance();
-  users.addUser(User(eventSocket));
+  users.addUser(eventSocket);
 }
 
 void IRCServer::disconnectCallback(fd eventSocket)

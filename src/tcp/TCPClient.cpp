@@ -1,13 +1,10 @@
 #include "TCPClient.hpp"
-#define RED "\033[31m"
-#define RESET "\033[0m"
-#include <iostream>
-
 
 TCPClient::TCPClient()
-: socket(-1), readBuffer(""), writeBuffer(""), delimiter("\r\n")
-{
-}
+: socket(-1),
+  readBuffer(""),
+  writeBuffer(""),
+  delimiter("\r\n") {}
 
 TCPClient::TCPClient(int socket) 
 : socket(socket),
@@ -55,7 +52,7 @@ void TCPClient::send(const char* data){
 bool TCPClient::sendBufferFlush()
 {
 
-  ssize_t bytesSent = ::send(socket, writeBuffer.c_str(), writeBuffer.length(), MSG_NOSIGNAL);
+  ssize_t bytesSent = ::send(socket, writeBuffer.c_str(), writeBuffer.length(), 0);
   if (bytesSent < 0) {
     throw std::runtime_error("broken pipe: ");
   }
@@ -74,7 +71,7 @@ std::string TCPClient::receive(){
     readBuffer.erase(0, findDelimiter() + delimiter.length());
     return message;
   }
-  ssize_t bytesReceived = recv(socket, data, BUFFER_SIZE, MSG_NOSIGNAL);
+  ssize_t bytesReceived = recv(socket, data, BUFFER_SIZE, 0);
   if (bytesReceived == -1) {
     return "";
   }
