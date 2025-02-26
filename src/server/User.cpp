@@ -9,6 +9,7 @@ User::User()
   realname(""), 
   authenticated(false),
   channels(),
+  registered(false),
   quitFlag(false)
 {
 }
@@ -23,6 +24,7 @@ User::User(int socket)
       realname(""), 
       authenticated(false),
       channels(),
+	  registered(false),
       quitFlag(false)
   {}
 
@@ -37,6 +39,7 @@ User::User(const User & other)
   realname(other.realname), 
   authenticated(other.authenticated),
   channels(other.channels),
+  registered(false),
   quitFlag(other.quitFlag)
 {}
 
@@ -52,6 +55,7 @@ User & User::operator=(const User & other)
     this->realname = other.realname;
     this->authenticated = other.authenticated;
     this->channels = other.channels;
+	this->registered = other.registered;
     this->quitFlag = other.quitFlag;
   }
   return *this;
