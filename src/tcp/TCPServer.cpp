@@ -1,16 +1,18 @@
 #include "TCPServer.hpp"
+
 #include <arpa/inet.h>
-#include <iostream>
 #include <sys/socket.h>
 
+#include <iostream>
+
 TCPServer::TCPServer()
-: serverSocket(-1),
-  kq(-1),
-  running(false),
-  eventlists(),
-  port(0),
-  ip(""),
-  writeEvents() {}
+    : serverSocket(-1),
+      kq(-1),
+      running(false),
+      eventlists(),
+      port(0),
+      ip(""),
+      writeEvents() {}
 
 TCPServer::~TCPServer() {
   if (serverSocket != -1) {
@@ -43,7 +45,7 @@ void TCPServer::start() {
   setNonBlocking(serverSocket);
   struct kevent serverEvent;
   EV_SET(&serverEvent, serverSocket, EVFILT_READ, EV_ADD, 0, SOMAXCONN, NULL);
-  if (kevent(kq, &serverEvent, 1, NULL, 0, NULL) == -1){
+  if (kevent(kq, &serverEvent, 1, NULL, 0, NULL) == -1) {
     throw std::runtime_error("Failed to register server event");
   }
   if (listen(serverSocket, SOMAXCONN) == -1) {
@@ -56,17 +58,11 @@ void TCPServer::start() {
   }
 }
 
-void TCPServer::stop(){
-	running = false;
-}
+void TCPServer::stop() { running = false; }
 
-void TCPServer::setPort(int port) {
-  this->port = port;
-}
+void TCPServer::setPort(int port) { this->port = port; }
 
-void TCPServer::setIp(std::string ip) {
-  this->ip = ip;
-}
+void TCPServer::setIp(std::string ip) { this->ip = ip; }
 
 void TCPServer::eventLoop() {
   int newEvents = kevent(kq, NULL, 0, eventlists, MAX_EVENTS, NULL);
@@ -77,14 +73,14 @@ void TCPServer::eventLoop() {
     int filter = eventlists[i].filter;
     int flags = eventlists[i].flags;
     if (fd == serverSocket && filter == EVFILT_READ) {
-      try{
+      try {
         int newClient = connectClient();
         acceptCallback(newClient);
       } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
-        continue ;
+        continue;
       }
-      continue ;
+      continue;
     }
 
     if (fd == serverSocket && flags & (EV_EOF | EV_ERROR)) {
@@ -93,12 +89,13 @@ void TCPServer::eventLoop() {
 
     if (flags & (EV_EOF | EV_ERROR)) {
       disconnectCallback(fd);
-      continue ;
+      continue;
     }
 
     handleEventFilter(filter, fd);
   }
-  std::vector<struct kevent> writeEventsVector(writeEvents.begin(), writeEvents.end());
+  std::vector<struct kevent> writeEventsVector(writeEvents.begin(),
+                                               writeEvents.end());
   kevent(kq, writeEventsVector.data(), writeEventsVector.size(), NULL, 0, NULL);
   writeEvents.clear();
 }
@@ -180,4 +177,3 @@ void TCPServer::setReadCallback(EventCallback callback) {
 void TCPServer::setWriteCallback(EventCallback callback) {
   writeCallback = callback;
 }
-

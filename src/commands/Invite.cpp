@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Invite.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
+/*   By: jewlee <jewlee@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 00:19:56 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/26 16:20:06 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/27 15:07:05 by jewlee           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,39 +30,42 @@
 #include "IRCCommand.hpp"
 
 namespace IRCCommand {
-  void invite(int clientSocket, void* message) {
-    Message *msg = static_cast<Message *>(message);
-    std::vector<std::string> params = msg->getParams();
-    UserRepository &userRepo = UserRepository::getInstance();
-    ChannelRepository &channelRepo = ChannelRepository::getInstance();
-    User *user = userRepo.getUser(clientSocket);
-  
-    if (params.size() < 2) {
-      return user->send(ERR_NEEDMOREPARAMS(user->getNickname(), "INVITE"));
-    }
-    
-    User *target = userRepo.getUser(params[0]);
+void invite(int clientSocket, void *message) {
+  Message *msg = static_cast<Message *>(message);
+  std::vector<std::string> params = msg->getParams();
+  UserRepository &userRepo = UserRepository::getInstance();
+  ChannelRepository &channelRepo = ChannelRepository::getInstance();
+  User *user = userRepo.getUser(clientSocket);
 
-    if (!target) {
-      return user->send(ERR_NOSUCHNICK(user->getNickname(), params[0]));
-    }
+  if (params.size() < 2) {
+    return user->send(ERR_NEEDMOREPARAMS(user->getNickname(), "INVITE"));
+  }
 
-    Channel *channel = channelRepo.getChannel(params[1]);
+  User *target = userRepo.getUser(params[0]);
 
-    if (!channel || !channel->hasUser(*user)){
-      return user->send(ERR_NOTONCHANNEL(user->getNickname(), params[1]));
-    }
+  if (!target) {
+    return user->send(ERR_NOSUCHNICK(user->getNickname(), params[0]));
+  }
 
-    if (channel->isInviteOnly() && !channel->isOperator(*user)){
-      return user->send(ERR_CHANOPRIVSNEEDED(user->getNickname(), params[1]));
-    }
+  Channel *channel = channelRepo.getChannel(params[1]);
 
-    if (channel->hasUser(*target)){
-      return user->send(ERR_USERONCHANNEL(user->getNickname(), target->getNickname(), channel->getName()));
-    }
-    user->invited(channel->getName());
-    user->send(RPL_INVITING(user->getNickname(), target->getNickname(), channel->getName()));
-    target->send(":" + user->getNickname() + " INVITE " + target->getNickname() + " " + channel->getName());
-    channel->invite(*target);
-  }  
-} // namespace IRCCommand
+  if (!channel || !channel->hasUser(*user)) {
+    return user->send(ERR_NOTONCHANNEL(user->getNickname(), params[1]));
+  }
+
+  if (channel->isInviteOnly() && !channel->isOperator(*user)) {
+    return user->send(ERR_CHANOPRIVSNEEDED(user->getNickname(), params[1]));
+  }
+
+  if (channel->hasUser(*target)) {
+    return user->send(ERR_USERONCHANNEL(
+        user->getNickname(), target->getNickname(), channel->getName()));
+  }
+  user->invited(channel->getName());
+  user->send(RPL_INVITING(user->getNickname(), target->getNickname(),
+                          channel->getName()));
+  target->send(":" + user->getNickname() + " INVITE " + target->getNickname() +
+               " " + channel->getName());
+  channel->invite(*target);
+}
+}  // namespace IRCCommand

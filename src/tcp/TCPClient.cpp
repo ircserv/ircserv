@@ -1,29 +1,21 @@
 #include "TCPClient.hpp"
 
 TCPClient::TCPClient()
-: socket(-1),
-  readBuffer(""),
-  writeBuffer(""),
-  delimiter("\r\n") {}
+    : socket(-1), readBuffer(""), writeBuffer(""), delimiter("\r\n") {}
 
-TCPClient::TCPClient(int socket) 
-: socket(socket),
-  readBuffer(""),
-  writeBuffer(""),
-  delimiter("\r\n")
-{}
+TCPClient::TCPClient(int socket)
+    : socket(socket), readBuffer(""), writeBuffer(""), delimiter("\r\n") {}
 
-TCPClient::~TCPClient(){}
+TCPClient::~TCPClient() {}
 
-TCPClient::TCPClient(const TCPClient& other) 
-: socket(other.socket),
-readBuffer(other.readBuffer),
-writeBuffer(other.writeBuffer),
-delimiter(other.delimiter) {
-}
+TCPClient::TCPClient(const TCPClient& other)
+    : socket(other.socket),
+      readBuffer(other.readBuffer),
+      writeBuffer(other.writeBuffer),
+      delimiter(other.delimiter) {}
 
-TCPClient& TCPClient::operator=(const TCPClient& other){
-  if(this != &other){
+TCPClient& TCPClient::operator=(const TCPClient& other) {
+  if (this != &other) {
     socket = other.socket;
     readBuffer = other.readBuffer;
     writeBuffer = other.writeBuffer;
@@ -36,23 +28,20 @@ std::string::size_type TCPClient::findDelimiter() const {
   return readBuffer.find(delimiter);
 }
 
-void TCPClient::appendToBuffer(const char* data, size_t length){
+void TCPClient::appendToBuffer(const char* data, size_t length) {
   readBuffer.append(data, length);
 }
 
-void TCPClient::clearReadBuffer(){
-  readBuffer.clear();
-}
+void TCPClient::clearReadBuffer() { readBuffer.clear(); }
 
-void TCPClient::send(const char* data){
+void TCPClient::send(const char* data) {
   writeBuffer.append(data);
   writeBuffer.append(delimiter);
 }
 
-bool TCPClient::sendBufferFlush()
-{
-
-  ssize_t bytesSent = ::send(socket, writeBuffer.c_str(), writeBuffer.length(), 0);
+bool TCPClient::sendBufferFlush() {
+  ssize_t bytesSent =
+      ::send(socket, writeBuffer.c_str(), writeBuffer.length(), 0);
   if (bytesSent < 0) {
     throw std::runtime_error("broken pipe: ");
   }
@@ -63,10 +52,10 @@ bool TCPClient::sendBufferFlush()
   return false;
 }
 
-std::string TCPClient::receive(){
+std::string TCPClient::receive() {
   char data[BUFFER_SIZE];
   memset(data, 0, BUFFER_SIZE);
-  if (!readBuffer.empty() && findDelimiter() != std::string::npos){
+  if (!readBuffer.empty() && findDelimiter() != std::string::npos) {
     std::string message = readBuffer.substr(0, findDelimiter());
     readBuffer.erase(0, findDelimiter() + delimiter.length());
     return message;
@@ -86,7 +75,4 @@ std::string TCPClient::receive(){
   return message;
 }
 
-int TCPClient::getSocket() const
-{
-  return socket;
-}
+int TCPClient::getSocket() const { return socket; }

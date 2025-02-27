@@ -3,47 +3,50 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minhulee <minhulee@student.42seoul.kr>     +#+  +:+       +#+        */
+/*   By: jewlee <jewlee@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 07:32:10 by yechakim          #+#    #+#             */
-/*   Updated: 2025/02/26 21:14:12 by minhulee         ###   ########seoul.kr  */
+/*   Updated: 2025/02/27 15:08:00 by jewlee           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <csignal>
 #include <stdlib.h>
+
+#include <csignal>
+#include <iostream>
+#include <string>
+
 #include "IRCServer.hpp"
 #include "commands/IRCCommand.hpp"
 #include "server/ChannelRepository.hpp"
 #include "server/IRCServer.hpp"
-#include <iostream>
-#include <string>
 
-void signalhandler(int){
-	IRCServer::getInstance().stop();
-	IRCServer::destroy();
-	UserRepository::destroy();
-	ChannelRepository::destroy();
-	//std::string cmd = "lsof -p" + std::to_string(getpid());
-	//system(cmd.c_str());
+void signalhandler(int) {
+  IRCServer::getInstance().stop();
+  IRCServer::destroy();
+  UserRepository::destroy();
+  ChannelRepository::destroy();
+  // std::string cmd = "lsof -p" + std::to_string(getpid());
+  // system(cmd.c_str());
 }
 
-//void check()
+// void check()
 //{
 //	system("leaks ircserv");
-//}
+// }
 
-int main(int argc, char *argv[]){
-//  atexit(check);
+int main(int argc, char *argv[]) {
+  //  atexit(check);
   signal(SIGINT, signalhandler);
-  if(!(argc == 3 || argc == 4)) {
-    std::cerr << "Usage: " << argv[0] << "[<ip>] <server_port> <server_password>" << std::endl;
+  if (!(argc == 3 || argc == 4)) {
+    std::cerr << "Usage: " << argv[0]
+              << "[<ip>] <server_port> <server_password>" << std::endl;
     return 1;
   }
   int port;
   std::string addr;
   std::string password;
-  if(argc == 4){
+  if (argc == 4) {
     addr = std::string(argv[1]);
     if (!utils::isNumber(argv[2])) {
       std::cerr << "Port must be a number" << std::endl;
@@ -60,9 +63,8 @@ int main(int argc, char *argv[]){
     password = std::string(argv[2]);
   }
 
-  
   IRCServer &server = IRCServer::getInstance();
-  if(argc == 4) {
+  if (argc == 4) {
     server.setIp(addr);
   }
   server.setPort(port);
@@ -82,7 +84,7 @@ int main(int argc, char *argv[]){
   server.on(CMD_INVITE, IRCCommand::invite);
   server.on(CMD_TOPIC, IRCCommand::topic);
   server.on(CMD_NAMES, IRCCommand::names);
-  
+
   try {
     server.start();
   } catch (const std::exception &e) {

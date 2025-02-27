@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Part.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yechakim <yechakim@student.42seoul.kr>     +#+  +:+       +#+        */
+/*   By: jewlee <jewlee@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 03:30:01 by minhulee          #+#    #+#             */
-/*   Updated: 2025/02/26 17:32:41 by yechakim         ###   ########.fr       */
+/*   Updated: 2025/02/27 15:07:13 by jewlee           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,37 +38,39 @@
 #include "IRCCommand.hpp"
 
 namespace IRCCommand {
-  void part(int clientSocket, void* message){
-    Message *msg = static_cast<Message *>(message);
-    std::vector<std::string> params = msg->getParams();
-    UserRepository &userRepository = UserRepository::getInstance();
-    ChannelRepository &channelRepo = ChannelRepository::getInstance();
-    User *user = userRepository.getUser(clientSocket);
-    std::string nickname = user->getNickname();
+void part(int clientSocket, void *message) {
+  Message *msg = static_cast<Message *>(message);
+  std::vector<std::string> params = msg->getParams();
+  UserRepository &userRepository = UserRepository::getInstance();
+  ChannelRepository &channelRepo = ChannelRepository::getInstance();
+  User *user = userRepository.getUser(clientSocket);
+  std::string nickname = user->getNickname();
 
-    if (params.size() == 0) {
-      return user->send(ERR_NEEDMOREPARAMS(nickname, CMD_PART)); 
+  if (params.size() == 0) {
+    return user->send(ERR_NEEDMOREPARAMS(nickname, CMD_PART));
+  }
+
+  std::vector<std::string> channels = utils::split(params[0], ',');
+  std::string reason = (params.size() == 2) ? params[1] : "Leaving";
+
+  for (std::vector<std::string>::iterator it = channels.begin();
+       it != channels.end(); ++it) {
+    std::string channelName = *it;
+    if (!channelRepo.hasChannel(channelName)) {
+      user->send(ERR_NOSUCHCHANNEL(nickname, channelName));
+      continue;
     }
-
-    std::vector<std::string> channels = utils::split(params[0], ',');
-    std::string reason = (params.size() == 2) ? params[1] : "Leaving";
-
-    for(std::vector<std::string>::iterator it = channels.begin(); it != channels.end();++it){
-      std::string channelName = *it;
-      if(!channelRepo.hasChannel(channelName)){
-        user->send(ERR_NOSUCHCHANNEL(nickname, channelName));
-        continue ; 
-      }
-      if (!user->isJoined(channelName)){
-        user->send(ERR_NOTONCHANNEL(nickname, channelName));
-        continue ;
-      }
-      Channel *channel = channelRepo.getChannel(channelName);
-      channel->broadcast(":" + user->getFullName() + " " + CMD_PART + " " + channelName + " " + reason);
-      user->part(*channel);
-      if(channel->isEmpty()){
-        channelRepo.removeChannel(*channel);
-      }
+    if (!user->isJoined(channelName)) {
+      user->send(ERR_NOTONCHANNEL(nickname, channelName));
+      continue;
+    }
+    Channel *channel = channelRepo.getChannel(channelName);
+    channel->broadcast(":" + user->getFullName() + " " + CMD_PART + " " +
+                       channelName + " " + reason);
+    user->part(*channel);
+    if (channel->isEmpty()) {
+      channelRepo.removeChannel(*channel);
     }
   }
 }
+}  // namespace IRCCommand
